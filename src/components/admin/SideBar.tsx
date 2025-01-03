@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
@@ -14,70 +15,95 @@ import {
   ChevronLeft,
   BarChart3,
   History,
-  Table
+  Table,
 } from 'lucide-react';
+import Link from 'next/link';
+
 interface SidebarProps {
-    isOpen: boolean
-    setIsOpen: (is: boolean) => void
+  isOpen: boolean;
+  setIsOpen: (is: boolean) => void;
 }
+
 const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
-  const [activeMenu, setActiveMenu] = useState('dashboard');
+  const pathname = usePathname();
   const [expandedSubmenu, setExpandedSubmenu] = useState<string | null>(null);
 
   const menuItems = [
     {
       id: 'dashboard',
       title: 'Tổng quan',
-      icon: Home
+      icon: Home,
+      path: '/admin/dashboard',
     },
     {
       id: 'menu',
       title: 'Quản lý Menu',
       icon: ListOrdered,
       submenu: [
-        { id: 'add-dish', title: 'Thêm món mới', icon: PlusCircle },
-        { id: 'categories', title: 'Danh mục', icon: CableCar },
-        { id: 'list-dishes', title: 'Danh sách món', icon: ListOrdered }
-      ]
+        { id: 'add-dish', title: 'Thêm món mới', icon: PlusCircle, path: '/menu/add-dish' },
+        { id: 'categories', title: 'Danh mục', icon: CableCar, path: '/admin/menu/categories' },
+        { id: 'list-dishes', title: 'Danh sách món', icon: ListOrdered, path: '/admin/menu-items' },
+      ],
     },
     {
       id: 'orders',
       title: 'Đơn hàng',
       icon: History,
       submenu: [
-        { id: 'current-orders', title: 'Đơn hiện tại', icon: Table },
-        { id: 'order-history', title: 'Lịch sử đơn', icon: History }
-      ]
+        { id: 'current-orders', title: 'Đơn hiện tại', icon: Table, path: '/orders/current' },
+        { id: 'order-history', title: 'Lịch sử đơn', icon: History, path: '/orders/history' },
+      ],
     },
     {
       id: 'qr',
       title: 'QR Management',
       icon: QrCode,
       submenu: [
-        { id: 'generate-qr', title: 'Tạo QR Code', icon: QrCode },
-        { id: 'table-qr', title: 'QR theo bàn', icon: Table }
-      ]
+        { id: 'generate-qr', title: 'Tạo QR Code', icon: QrCode, path: '/qr/generate' },
+        { id: 'table-qr', title: 'QR theo bàn', icon: Table, path: '/qr/table' },
+      ],
     },
     {
       id: 'analytics',
       title: 'Thống kê',
-      icon: BarChart3
+      icon: BarChart3,
+      path: '/analytics',
     },
     {
       id: 'users',
       title: 'Người dùng',
-      icon: Users
+      icon: Users,
+      path: '/users',
     },
     {
       id: 'settings',
       title: 'Cài đặt',
-      icon: Settings
-    }
+      icon: Settings,
+      path: '/settings',
+    },
   ];
 
   const toggleSubmenu = (menuId: string) => {
     setExpandedSubmenu(expandedSubmenu === menuId ? null : menuId);
   };
+
+  const getActiveMenu = () => {
+    for (const item of menuItems) {
+      if (item.path === pathname) return item.id;
+      if (item.submenu) {
+        const activeSub = item.submenu.find((sub) => sub.path === pathname);
+        if (activeSub) return item.id;
+      }
+    }
+    return null;
+  };
+
+  const isActiveSubmenuItem = (path: string) => pathname === path;
+
+  useEffect(() => {
+    const activeMenu = getActiveMenu();
+    if (activeMenu) setExpandedSubmenu(activeMenu);
+  }, [pathname]);
 
   return (
     <>
@@ -99,8 +125,8 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         initial={{ x: -300 }}
         animate={{ x: isOpen ? 0 : -300 }}
         transition={{ type: 'spring', damping: 25, stiffness: 180 }}
-        className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-orange-100 
-          w-72 z-40 overflow-y-auto overflow-x-hidden shadow-lg`}
+        className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-orange-100 
+          w-72 z-40 overflow-y-auto overflow-x-hidden shadow-lg"
       >
         <div className="p-4">
           {/* Toggle Button */}
@@ -116,30 +142,56 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           <nav className="space-y-1">
             {menuItems.map((item) => (
               <div key={item.id}>
-                <button
-                  onClick={() => {
-                    setActiveMenu(item.id);
-                    if (item.submenu) toggleSubmenu(item.id);
-                  }}
-                  className={`w-full flex items-center justify-between p-3 rounded-lg 
-                    transition-colors duration-200 group
-                    ${activeMenu === item.id 
-                      ? 'bg-orange-50 text-orange-600' 
-                      : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'}`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <item.icon className={`h-5 w-5 ${
-                      activeMenu === item.id ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
-                    }`} />
-                    <span className="font-medium">{item.title}</span>
-                  </div>
-                  {item.submenu && (
-                    <ChevronRight 
+                {item.submenu ? (
+                  <button
+                    onClick={() => toggleSubmenu(item.id)}
+                    className={`w-full flex items-center justify-between p-3 rounded-lg 
+                      transition-colors duration-200 group
+                      ${
+                        getActiveMenu() === item.id
+                          ? 'bg-orange-50 text-orange-600'
+                          : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'
+                      }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon
+                        className={`h-5 w-5 ${
+                          getActiveMenu() === item.id
+                            ? 'text-orange-600'
+                            : 'text-gray-500 group-hover:text-orange-600'
+                        }`}
+                      />
+                      <span className="font-medium">{item.title}</span>
+                    </div>
+                    <ChevronRight
                       className={`h-4 w-4 transition-transform duration-200 
                         ${expandedSubmenu === item.id ? 'rotate-90' : ''}`}
                     />
-                  )}
-                </button>
+                  </button>
+                ) : (
+                  <Link
+                    onClick={() => setIsOpen(false)}
+                    href={item.path}
+                    className={`w-full flex items-center p-3 rounded-lg 
+                      transition-colors duration-200 group
+                      ${
+                        pathname === item.path
+                          ? 'bg-orange-50 text-orange-600'
+                          : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'
+                      }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon
+                        className={`h-5 w-5 ${
+                          pathname === item.path
+                            ? 'text-orange-600'
+                            : 'text-gray-500 group-hover:text-orange-600'
+                        }`}
+                      />
+                      <span className="font-medium">{item.title}</span>
+                    </div>
+                  </Link>
+                )}
 
                 {/* Submenu */}
                 {item.submenu && (
@@ -153,20 +205,27 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                         className="ml-4 mt-1 space-y-1"
                       >
                         {item.submenu.map((subItem) => (
-                          <button
+                          <Link
+                            onClick={() => setIsOpen(false)}
                             key={subItem.id}
-                            onClick={() => setActiveMenu(subItem.id)}
+                            href={subItem.path}
                             className={`w-full flex items-center p-2 rounded-lg text-sm
                               transition-colors duration-200 group space-x-3
-                              ${activeMenu === subItem.id 
-                                ? 'bg-orange-50 text-orange-600' 
-                                : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'}`}
+                              ${
+                                isActiveSubmenuItem(subItem.path)
+                                  ? 'bg-orange-50 text-orange-600'
+                                  : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'
+                              }`}
                           >
-                            <subItem.icon className={`h-4 w-4 ${
-                              activeMenu === subItem.id ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
-                            }`} />
+                            <subItem.icon
+                              className={`h-4 w-4 ${
+                                isActiveSubmenuItem(subItem.path)
+                                  ? 'text-orange-600'
+                                  : 'text-gray-500 group-hover:text-orange-600'
+                              }`}
+                            />
                             <span>{subItem.title}</span>
-                          </button>
+                          </Link>
                         ))}
                       </motion.div>
                     )}

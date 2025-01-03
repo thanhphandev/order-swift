@@ -46,8 +46,7 @@ export async function getCategories() {
 
 export async function addSubcategory(data: { name: string; categoryId: string }) {
   try {
-    console.log(data);
-
+    
     await connectDB();
     const subcategory = new Subcategory({ name: data.name, categoryId: data.categoryId });
     const savedSubcategory = await subcategory.save();
