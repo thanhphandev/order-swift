@@ -1,12 +1,21 @@
 import mongoose from 'mongoose';
 
-const connectDB = async () => {
+const connectDB = async (): Promise<void> => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI as string ?? "mongodb://localhost:27017/qr-swiftfood");
+        const uri: string = process.env.MONGODB_URI ?? "mongodb://localhost:27017/qr-swiftfood";
+        await mongoose.connect(uri);
         console.log('MongoDB Connected');
-    } catch (error) {
-        console.error('Error connecting to MongoDB', error);
-        process.exit(1);
+    } catch (error: unknown) {
+        if (error instanceof mongoose.Error) {
+            // Specific handling for Mongoose-related errors
+            console.error('Mongoose Error:', error.message);
+        } else if (error instanceof Error) {
+            // General JavaScript error
+            console.error('General Error:', error.message);
+        } else {
+            // Unexpected error type
+            console.error('Unexpected Error:', JSON.stringify(error));
+        }
     }
 };
 

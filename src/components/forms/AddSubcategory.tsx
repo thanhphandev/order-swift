@@ -7,27 +7,28 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addCategory } from "@/app/actions/category";
-import { categoryCreateSchema } from '@/schemas/category';
+import { addSubcategory } from "@/app/actions/category";
+import { subcategoryCreateSchema } from '@/schemas/subcategory';
 
-interface AddCategoryFormProps {
+interface AddSubcategoryFormProps {
+    categoryId: string;
     onOpenChange: Dispatch<SetStateAction<boolean>>;
-    onCategoryAdded: (newCategory: Category) => void;
+    onSubcategoryAdded: (newCategory: Category) => void;
 }
 
-export default function AddCategoryForm({ onOpenChange, onCategoryAdded }: AddCategoryFormProps) {
+export default function AddSubcategoryForm({ categoryId, onOpenChange, onSubcategoryAdded }: AddSubcategoryFormProps) {
     const [loading, setLoading] = useState(false);
-    const form = useForm<z.infer<typeof categoryCreateSchema>>({
-        resolver: zodResolver(categoryCreateSchema),
-        defaultValues: { category: "" },
+    const form = useForm<z.infer<typeof subcategoryCreateSchema>>({
+        resolver: zodResolver(subcategoryCreateSchema),
+        defaultValues: { subcategory: "" },
     });
 
-    const onSubmit = async (values: z.infer<typeof categoryCreateSchema>) => {
+    const onSubmit = async (values: z.infer<typeof subcategoryCreateSchema>) => {
         setLoading(true);
         try {
-            const newCategory = await addCategory({ name: values.category });
-            toast.success("Thêm danh mục thành công!");
-            onCategoryAdded(newCategory);  // Chỉ cập nhật danh mục mới vào state
+            const newCategory = await addSubcategory({ name: values.subcategory, categoryId: categoryId }); // update category
+            toast.success("Thêm danh mục con thành công!");
+            onSubcategoryAdded(newCategory); // update UI
             onOpenChange(false);
         } catch (error) {
             console.error("Lỗi gửi form", error);
@@ -46,10 +47,10 @@ export default function AddCategoryForm({ onOpenChange, onCategoryAdded }: AddCa
             >
                 <FormField
                     control={form.control}
-                    name="category"
+                    name="subcategory"
                     render={({ field, fieldState }) => (
                         <FormItem className="space-y-2">
-                            <FormLabel className="text-sm font-medium text-gray-700">Danh mục</FormLabel>
+                            <FormLabel className="text-sm font-medium text-gray-700">Danh mục con</FormLabel>
                             <FormControl>
                                 <div className="relative">
                                     <Input
@@ -60,7 +61,7 @@ export default function AddCategoryForm({ onOpenChange, onCategoryAdded }: AddCa
                                                 ? "border-red-500 focus:ring-red-200"
                                                 : "border-orange-500 focus:ring-blue-200"
                                             } focus:border-gray-500 focus:ring-4`}
-                                        placeholder="Nhập danh mục"
+                                        placeholder="Nhập danh mục con"
                                     />
                                     {fieldState.error && (
                                         <div
