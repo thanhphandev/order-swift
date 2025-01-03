@@ -1,39 +1,29 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, MinusCircleIcon, Trash2Icon } from "lucide-react";
+import { Plus, MinusCircleIcon } from "lucide-react";
 import type { Category, Subcategory } from "@/app/types/category";
-import { getCategories, getSubcategories, deleteCategory, deleteSubcategory } from "@/app/actions/category";
+import { getSubcategories, deleteCategory, deleteSubcategory } from "@/app/actions/category";
 import { Button } from "@/components/ui/button";
 import { ModalAction } from "@/components/widgets/ModalAction";
 import AddCategoryForm from "@/components/forms/AddCategoryForm";
 import { SubCategoryList } from "./Subcategory";
 import DeleteConfirmationModal from "../widgets/DeleteConfirmationModal";
 
-export function CategoryBar() {
+interface CategoryBarProps {
+  categories: Category[];
+}
+
+export function CategoryBar({ categories }: CategoryBarProps) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "category" | "subcategory" } | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
-
-  const handleCategoryAdded = (newCategory: Category) => {
-    setCategories((prev) => [...prev, newCategory]);
-  };
 
   const handleSubcategoryAdded = (newSubcategory: Subcategory) => {
     setSubcategories((prev) => [...prev, newSubcategory]);
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const fetchedCategories = await getCategories();
-      setCategories(fetchedCategories);
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-    }
   };
 
   const handleClickCategory = async (id: string) => {
@@ -50,14 +40,15 @@ export function CategoryBar() {
     if (deleteTarget) {
       if (deleteTarget.type === "category") {
         await deleteCategory(deleteTarget.id);
-        setCategories((prev) => prev.filter((category) => category._id !== deleteTarget.id));
       } else if (deleteTarget.type === "subcategory") {
         await deleteSubcategory(deleteTarget.id);
         setSubcategories((prev) => prev.filter((subcategory) => subcategory._id !== deleteTarget.id));
       }
     }
+    setSelectedCategory(null);
     setIsDeleteConfirmOpen(false);
     setDeleteTarget(null);
+
   };
 
   const requestDelete = (id: string, type: "category" | "subcategory") => {
@@ -65,9 +56,6 @@ export function CategoryBar() {
     setIsDeleteConfirmOpen(true);
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   return (
     <div className="rounded-xl flex flex-col w-full bg-white shadow-sm">
@@ -81,7 +69,7 @@ export function CategoryBar() {
 
       {/* Add Category Modal */}
       <ModalAction title="Thêm danh mục" isOpen={isCategoryOpen} setIsOpen={setIsCategoryOpen}>
-        <AddCategoryForm onOpenChange={setIsCategoryOpen} onCategoryAdded={handleCategoryAdded} />
+        <AddCategoryForm onOpenChange={setIsCategoryOpen}/>
       </ModalAction>
 
       <div className="flex items-center gap-3 p-4 border-b">

@@ -12,10 +12,9 @@ import { categoryCreateSchema } from '@/schemas/category';
 
 interface AddCategoryFormProps {
     onOpenChange: Dispatch<SetStateAction<boolean>>;
-    onCategoryAdded: (newCategory: Category) => void;
 }
 
-export default function AddCategoryForm({ onOpenChange, onCategoryAdded }: AddCategoryFormProps) {
+export default function AddCategoryForm({ onOpenChange }: AddCategoryFormProps) {
     const [loading, setLoading] = useState(false);
     const form = useForm<z.infer<typeof categoryCreateSchema>>({
         resolver: zodResolver(categoryCreateSchema),
@@ -27,7 +26,6 @@ export default function AddCategoryForm({ onOpenChange, onCategoryAdded }: AddCa
         try {
             const newCategory = await addCategory({ name: values.category });
             toast.success("Thêm danh mục thành công!");
-            onCategoryAdded(newCategory);  // Chỉ cập nhật danh mục mới vào state
             onOpenChange(false);
         } catch (error) {
             console.error("Lỗi gửi form", error);

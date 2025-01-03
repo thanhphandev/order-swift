@@ -11,16 +11,12 @@ export async function addCategory(data: { name: string }) {
     await connectDB();
     const category = new Category({ name: data.name });
     const savedCategory = await category.save();
-
+    revalidatePath('/admin/menu/categories');
     return {
       _id: savedCategory._id.toString(),
       name: savedCategory.name
     };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error('Validation Error:', error.errors);
-      throw new Error('Invalid data: ' + error.errors.map((e) => e.message).join(', '));
-    }
     throw new Error('Failed to add category. Please try again.');
   }
 }
@@ -55,7 +51,7 @@ export async function addSubcategory(data: { name: string; categoryId: string })
     await Category.findByIdAndUpdate(data.categoryId, {
       $push: { subcategories: savedSubcategory._id },
     });
-
+    revalidatePath('/admin/menu/categories');
     return {
       _id: savedSubcategory._id.toString(),
       name: savedSubcategory.name
@@ -101,7 +97,7 @@ export async function deleteCategory(categoryId: string) {
     await Subcategory.deleteMany({ categoryId });
 
     await Category.findByIdAndDelete(categoryId);
-
+    revalidatePath('/admin/menu/categories');
     return {
       message: 'Category and subcategories deleted successfully.'
     };
@@ -115,6 +111,7 @@ export async function deleteSubcategory(subcategoryId: string) {
   try {
     await connectDB();
     await Subcategory.findByIdAndDelete(subcategoryId);
+    revalidatePath('/admin/menu/categories');
     return {
       message: 'Subcategory deleted successfully.'
     };

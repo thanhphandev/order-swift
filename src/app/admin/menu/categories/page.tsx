@@ -1,10 +1,12 @@
 import { CategoryBar } from '@/components/menu-items/CategoryBar'
+import { getCategories } from '@/app/actions/category'
 import React from 'react'
 
-const MenuItems = () => {
+const MenuItems = async() => {
+  const categories = await getCategories();
   return (
     <div>
-        <CategoryBar />
+        <CategoryBar categories={categories}/>
     </div>
   )
 }

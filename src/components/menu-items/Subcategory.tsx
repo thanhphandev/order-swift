@@ -30,7 +30,7 @@ export function SubCategoryList({
   };
 
   return (
-    <div className="bg-white flex flex-wrap border-t px-4 py-2 gap-3 animate-slideDown">
+    <div className="bg-white flex flex-wrap border-t rounded-b-xl px-4 py-2 gap-3 animate-slideDown">
       <ModalAction
         title="Thêm danh mục con"
         isOpen={isAddSubcategoryOpen}
@@ -44,13 +44,7 @@ export function SubCategoryList({
       </ModalAction>
 
       <div className="flex flex-wrap gap-3 items-center">
-        <button
-          onClick={() => setIsAddSubcategoryOpen(true)}
-          className="px-4 py-2 bg-blue-500 rounded-xl text-white hover:bg-blue-600 transition-colors"
-          aria-label="Add subcategory"
-        >
-          <Plus size={20} />
-        </button>
+        
         {subCategories.map((subCategory) => (
           <div key={subCategory._id} className="relative " onMouseEnter={() => setHoveredSubcategory(subCategory._id)}
           onMouseLeave={() => setHoveredSubcategory(null)}>
@@ -74,6 +68,13 @@ export function SubCategoryList({
               )}
           </div>
         ))}
+        <button
+          onClick={() => setIsAddSubcategoryOpen(true)}
+          className="px-4 py-2 bg-blue-500 rounded-xl text-white hover:bg-blue-600 transition-colors"
+          aria-label="Add subcategory"
+        >
+          <Plus size={20} />
+        </button>
       </div>
     </div>
   );
