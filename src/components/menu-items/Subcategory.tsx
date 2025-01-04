@@ -30,7 +30,7 @@ export function SubCategoryList({
   };
 
   return (
-    <div className="bg-white flex flex-wrap border-t rounded-b-xl px-4 py-2 gap-3 animate-slideDown">
+    <div className="bg-white flex flex-wrap border-t px-4 py-2 gap-3 animate-slideDown">
       <ModalAction
         title="Thêm danh mục con"
         isOpen={isAddSubcategoryOpen}
