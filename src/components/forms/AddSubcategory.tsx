@@ -2,21 +2,20 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Category, Subcategory } from '@/app/types/category';
+import type { CategoryType, SubcategoryType } from '@/types/category';
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addSubcategory } from "@/app/actions/category";
+import { addSubcategory } from "@/actions/category";
 import { subcategoryCreateSchema } from '@/schemas/subcategory';
 
 interface AddSubcategoryFormProps {
     categoryId: string;
     onOpenChange: Dispatch<SetStateAction<boolean>>;
-    onSubcategoryAdded: (newCategory: Category) => void;
 }
 
-export default function AddSubcategoryForm({ categoryId, onOpenChange, onSubcategoryAdded }: AddSubcategoryFormProps) {
+export default function AddSubcategoryForm({ categoryId, onOpenChange }: AddSubcategoryFormProps) {
     const [loading, setLoading] = useState(false);
     const form = useForm<z.infer<typeof subcategoryCreateSchema>>({
         resolver: zodResolver(subcategoryCreateSchema),
@@ -28,7 +27,6 @@ export default function AddSubcategoryForm({ categoryId, onOpenChange, onSubcate
         try {
             const newCategory = await addSubcategory({ name: values.subcategory, categoryId: categoryId }); // update category
             toast.success("Thêm danh mục con thành công!");
-            onSubcategoryAdded(newCategory); // update UI
             onOpenChange(false);
         } catch (error) {
             console.error("Lỗi gửi form", error);

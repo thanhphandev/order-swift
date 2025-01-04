@@ -1,9 +1,9 @@
 'use server';
 
-import { Category, Subcategory } from '@/app/models/Category';
+import { Category, Subcategory } from '@/models/Category';
+import { CategoryType, SubcategoryType } from '@/types/category';
 import { revalidatePath } from 'next/cache';
 import connectDB from '@/lib/mongodb';
-import { z } from 'zod';
 
 export async function addCategory(data: { name: string }) {
   try {
@@ -21,21 +21,28 @@ export async function addCategory(data: { name: string }) {
   }
 }
 
-/**
- * Fetch all categories from the database.
- */
-export async function getCategories() {
+
+export async function getCategories(): Promise<CategoryType[]> {
   try {
+
     await connectDB();
-    const categories = await Category.find();
-    return categories.map(category => ({
+
+    const categoriesData = await Category.find().populate('subcategories');
+
+    const categories : CategoryType[]  = categoriesData.map(category => ({
       _id: category._id.toString(),
       name: category.name,
+      subcategories: category.subcategories?.map((subcategory: SubcategoryType) => ({
+        _id: subcategory._id.toString(),
+        name: subcategory.name,
+      })),
     }));
 
+    return categories;
+
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    throw new Error('Failed to fetch categories. Please try again.');
+    console.error('Error fetching categories with subcategories:', error);
+    throw new Error('Failed to fetch categories with subcategories. Please try again.');
   }
 }
 
@@ -47,7 +54,6 @@ export async function addSubcategory(data: { name: string; categoryId: string })
     const subcategory = new Subcategory({ name: data.name, categoryId: data.categoryId });
     const savedSubcategory = await subcategory.save();
 
-    // Update the parent category to include this subcategory
     await Category.findByIdAndUpdate(data.categoryId, {
       $push: { subcategories: savedSubcategory._id },
     });
@@ -57,38 +63,12 @@ export async function addSubcategory(data: { name: string; categoryId: string })
       name: savedSubcategory.name
     }
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error('Validation Error:', error.errors);
-      throw new Error('Invalid data: ' + error.errors.map((e) => e.message).join(', '));
-    }
     console.error('Error adding subcategory:', error);
     throw new Error('Failed to add subcategory. Please try again.');
   }
 }
 
-/**
- * Fetch all subcategories for a specific category.
- * @param categoryId - ID of the category to fetch subcategories for.
- */
-export async function getSubcategories(categoryId: string) {
-  try {
-    await connectDB();
-    const subcategories = await Subcategory.find({ categoryId });
-    const formattedSubcategories = subcategories.map(sub => ({
-      name: sub.name,
-      _id: sub._id.toString()
-      }));
-    return formattedSubcategories;
-  } catch (error) {
-    console.error('Error fetching subcategories:', error);
-    throw new Error('Failed to fetch subcategories. Please try again.');
-  }
-}
 
-/**
- * Delete a category and its associated subcategories.
- * @param categoryId - ID of the category to delete.
- */
 export async function deleteCategory(categoryId: string) {
   try {
     await connectDB();

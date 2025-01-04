@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Plus, MinusCircleIcon } from "lucide-react";
-import type { Category, Subcategory } from "@/app/types/category";
-import { getSubcategories, deleteCategory, deleteSubcategory } from "@/app/actions/category";
+import type { CategoryType } from "@/types/category";
+import { cn } from "@/lib/utils";
+import { deleteCategory, deleteSubcategory } from "@/actions/category";
 import { Button } from "@/components/ui/button";
 import { ModalAction } from "@/components/widgets/ModalAction";
 import AddCategoryForm from "@/components/forms/AddCategoryForm";
@@ -11,7 +12,7 @@ import { SubCategoryList } from "./Subcategory";
 import DeleteConfirmationModal from "../widgets/DeleteConfirmationModal";
 
 interface CategoryBarProps {
-  categories: Category[];
+  categories: CategoryType[];
 }
 
 export function CategoryBar({ categories }: CategoryBarProps) {
@@ -20,21 +21,7 @@ export function CategoryBar({ categories }: CategoryBarProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "category" | "subcategory" } | null>(null);
-  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 
-  const handleSubcategoryAdded = (newSubcategory: Subcategory) => {
-    setSubcategories((prev) => [...prev, newSubcategory]);
-  };
-
-  const handleClickCategory = async (id: string) => {
-    setSelectedCategory(id);
-    try {
-      const subs = await getSubcategories(id);
-      setSubcategories(subs);
-    } catch (error) {
-      console.error("Failed to fetch subcategories:", error);
-    }
-  };
 
   const confirmDelete = async () => {
     if (deleteTarget) {
@@ -42,13 +29,10 @@ export function CategoryBar({ categories }: CategoryBarProps) {
         await deleteCategory(deleteTarget.id);
       } else if (deleteTarget.type === "subcategory") {
         await deleteSubcategory(deleteTarget.id);
-        setSubcategories((prev) => prev.filter((subcategory) => subcategory._id !== deleteTarget.id));
       }
     }
-    setSelectedCategory(null);
     setIsDeleteConfirmOpen(false);
     setDeleteTarget(null);
-
   };
 
   const requestDelete = (id: string, type: "category" | "subcategory") => {
@@ -56,10 +40,11 @@ export function CategoryBar({ categories }: CategoryBarProps) {
     setIsDeleteConfirmOpen(true);
   };
 
+  const selectedCategoryData = categories.find((category) => category._id === selectedCategory);
 
   return (
     <div className="rounded-xl flex flex-col w-full bg-white shadow-sm">
-      {/* Confirm Delete Modal */}
+
       <DeleteConfirmationModal
         isOpen={isDeleteConfirmOpen}
         setIsOpen={setIsDeleteConfirmOpen}
@@ -74,33 +59,38 @@ export function CategoryBar({ categories }: CategoryBarProps) {
 
       <div className="flex items-center gap-3 p-4 border-b">
         <div className="flex flex-wrap gap-4">
-          {categories.map((category) => (
-            <div
-              className="relative"
-              key={category._id}
-              onMouseEnter={() => setHoveredCategory(category._id)}
-              onMouseLeave={() => setHoveredCategory(null)}
-            >
-              <button
-                onClick={() => handleClickCategory(category._id)}
-                className={`px-4 py-2 rounded-xl transition-colors shrink-0 ${
-                  selectedCategory === category._id
-                    ? "bg-orange-500 text-white"
-                    : "bg-orange-100 hover:bg-orange-50 text-black"
-                }`}
+        {categories.map((category) => (
+              <div
+                className="relative"
+                key={category._id}
+                onMouseEnter={() => setHoveredCategory(category._id)}
+                onMouseLeave={() => setHoveredCategory(null)}
               >
-                <span className="flex items-center gap-2">{category.name}</span>
-              </button>
-              {hoveredCategory === category._id && (
                 <button
-                  onClick={() => requestDelete(category._id, "category")}
-                  className="absolute -top-3 -right-2 p-1 text-red-500 bg-white rounded-full shadow-sm"
+                  onClick={() => setSelectedCategory(category._id)}
+                  className={cn(
+                    "px-4 py-2 rounded-xl transition-colors shrink-0",
+                    selectedCategory === category._id
+                      ? "bg-orange-500 text-white"
+                      : "bg-orange-100 hover:bg-orange-50 text-black"
+                  )}
                 >
-                  <MinusCircleIcon size={16} />
+                  <span className="flex items-center gap-2">{category.name}</span>
                 </button>
-              )}
-            </div>
-          ))}
+                {hoveredCategory === category._id && (
+                  <button
+                    onClick={() => requestDelete(category._id, "category")}
+                    className={cn(
+                      "absolute -top-3 -right-2 p-1 bg-white rounded-full shadow-sm",
+                      "text-red-500"
+                    )}
+                  >
+                    <MinusCircleIcon size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+
           <Button
             onClick={() => setIsCategoryOpen(true)}
             className="px-4 py-2 bg-orange-500 rounded-xl text-white hover:bg-orange-600 shrink-0"
@@ -111,9 +101,8 @@ export function CategoryBar({ categories }: CategoryBarProps) {
       </div>
       {selectedCategory && (
         <SubCategoryList
-          subCategories={subcategories}
+          subCategories={selectedCategoryData?.subcategories || []}
           categoryId={selectedCategory}
-          onSubcategoryAdded={handleSubcategoryAdded}
           onSubcategoryDeleted={(id) => requestDelete(id, "subcategory")}
         />
       )}

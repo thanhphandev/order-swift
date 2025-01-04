@@ -2,12 +2,12 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Category, Subcategory } from '@/app/types/category';
+import type { Category, Subcategory } from '@/types/category';
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addCategory } from "@/app/actions/category";
+import { addCategory } from "@/actions/category";
 import { categoryCreateSchema } from '@/schemas/category';
 
 interface AddCategoryFormProps {

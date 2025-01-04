@@ -7,13 +7,10 @@ const connectDB = async (): Promise<void> => {
         console.log('MongoDB Connected');
     } catch (error: unknown) {
         if (error instanceof mongoose.Error) {
-            // Specific handling for Mongoose-related errors
             console.error('Mongoose Error:', error.message);
         } else if (error instanceof Error) {
-            // General JavaScript error
             console.error('General Error:', error.message);
         } else {
-            // Unexpected error type
             console.error('Unexpected Error:', JSON.stringify(error));
         }
     }
