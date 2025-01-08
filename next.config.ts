@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "tan-accessible-rhinoceros-506.mypinata.cloud",
+        pathname: "/**", // Cho phép tất cả các đường dẫn từ hostname này
+      },
+    ],
+  },
 };
 
 export default nextConfig;

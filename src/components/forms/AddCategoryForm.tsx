@@ -2,12 +2,11 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Category, Subcategory } from '@/types/category';
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addCategory } from "@/actions/category";
+import { addCategory } from "@/actions/category.action";
 import { categoryCreateSchema } from '@/schemas/category';
 
 interface AddCategoryFormProps {
@@ -24,7 +23,7 @@ export default function AddCategoryForm({ onOpenChange }: AddCategoryFormProps) 
     const onSubmit = async (values: z.infer<typeof categoryCreateSchema>) => {
         setLoading(true);
         try {
-            const newCategory = await addCategory({ name: values.category });
+            await addCategory({ name: values.category });
             toast.success("Thêm danh mục thành công!");
             onOpenChange(false);
         } catch (error) {

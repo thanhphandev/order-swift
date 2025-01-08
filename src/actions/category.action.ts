@@ -17,6 +17,7 @@ export async function addCategory(data: { name: string }) {
       name: savedCategory.name
     };
   } catch (error) {
+    console.log(error)
     throw new Error('Failed to add category. Please try again.');
   }
 }
@@ -100,3 +101,29 @@ export async function deleteSubcategory(subcategoryId: string) {
     throw new Error('Failed to delete subcategory. Please try again.');
   }
 }
+
+
+export async function getSubcategories(categoryId: string) {
+  try {
+    // Connect to the database
+    await connectDB();
+
+    // Fetch the subcategories for the given categoryId
+    const data = await Subcategory.find({ categoryId }).exec();
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+    const subcategories = data.map(subcategory => (
+      {
+        _id: subcategory._id.toString(),
+        name: subcategory.name
+      }
+    ));
+    return subcategories
+  } catch (error) {
+    console.error('Error fetching subcategories:', error);
+    throw new Error('Failed to fetch subcategories. Please try again.');
+  }
+}
+

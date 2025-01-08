@@ -4,12 +4,14 @@ import React, { useState } from "react";
 import { Plus, MinusCircleIcon } from "lucide-react";
 import type { CategoryType } from "@/types/category";
 import { cn } from "@/lib/utils";
-import { deleteCategory, deleteSubcategory } from "@/actions/category";
+import { deleteCategory, deleteSubcategory } from "@/actions/category.action";
 import { Button } from "@/components/ui/button";
 import { ModalAction } from "@/components/widgets/ModalAction";
 import AddCategoryForm from "@/components/forms/AddCategoryForm";
 import { SubCategoryList } from "./Subcategory";
 import DeleteConfirmationModal from "../widgets/DeleteConfirmationModal";
+import AddMenuItem from "@/components/menu-items/add-menu-item";
+import { useCategoryStore } from "@/stores/categories-store";
 
 interface CategoryBarProps {
   categories: CategoryType[];
@@ -18,7 +20,7 @@ interface CategoryBarProps {
 export function CategoryBar({ categories }: CategoryBarProps) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const {selectedCategory, setSelectedCategory} = useCategoryStore();
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "category" | "subcategory" } | null>(null);
 
@@ -43,6 +45,7 @@ export function CategoryBar({ categories }: CategoryBarProps) {
   const selectedCategoryData = categories.find((category) => category._id === selectedCategory);
 
   return (
+    <>
     <div className="rounded-xl flex flex-col w-full bg-white shadow-sm">
 
       <DeleteConfirmationModal
@@ -52,7 +55,6 @@ export function CategoryBar({ categories }: CategoryBarProps) {
         type={deleteTarget?.type || 'category'}
       />
 
-      {/* Add Category Modal */}
       <ModalAction title="Thêm danh mục" isOpen={isCategoryOpen} setIsOpen={setIsCategoryOpen}>
         <AddCategoryForm onOpenChange={setIsCategoryOpen}/>
       </ModalAction>
@@ -77,7 +79,7 @@ export function CategoryBar({ categories }: CategoryBarProps) {
                 >
                   <span className="flex items-center gap-2">{category.name}</span>
                 </button>
-                {hoveredCategory === category._id && (
+                {selectedCategoryData?.subcategories?.length === 0 && hoveredCategory === category._id && (
                   <button
                     onClick={() => requestDelete(category._id, "category")}
                     className={cn(
@@ -99,13 +101,21 @@ export function CategoryBar({ categories }: CategoryBarProps) {
           </Button>
         </div>
       </div>
-      {selectedCategory && (
+      {selectedCategoryData && (
         <SubCategoryList
           subCategories={selectedCategoryData?.subcategories || []}
-          categoryId={selectedCategory}
+          categoryId={selectedCategoryData._id}
           onSubcategoryDeleted={(id) => requestDelete(id, "subcategory")}
         />
       )}
+
     </div>
+
+      {
+        selectedCategoryData && (
+          <AddMenuItem categoryId={selectedCategoryData._id} />
+        )
+      }
+    </>
   );
 }

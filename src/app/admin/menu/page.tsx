@@ -1,11 +1,14 @@
+import { CategoryBar } from '@/components/menu-items/CategoryBar'
+import { getCategories } from '@/actions/category.action'
 import React from 'react'
 
-const page = () => {
+const Menu = async() => {
+  const categories = await getCategories();
   return (
     <div>
-        Menu
+        <CategoryBar categories={categories}/>
     </div>
   )
 }
 
-export default page
+export default Menu

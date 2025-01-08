@@ -2,12 +2,11 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { CategoryType, SubcategoryType } from '@/types/category';
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addSubcategory } from "@/actions/category";
+import { addSubcategory } from "@/actions/category.action";
 import { subcategoryCreateSchema } from '@/schemas/subcategory';
 
 interface AddSubcategoryFormProps {
@@ -25,7 +24,7 @@ export default function AddSubcategoryForm({ categoryId, onOpenChange }: AddSubc
     const onSubmit = async (values: z.infer<typeof subcategoryCreateSchema>) => {
         setLoading(true);
         try {
-            const newCategory = await addSubcategory({ name: values.subcategory, categoryId: categoryId }); // update category
+            await addSubcategory({ name: values.subcategory, categoryId: categoryId }); // update category
             toast.success("Thêm danh mục con thành công!");
             onOpenChange(false);
         } catch (error) {

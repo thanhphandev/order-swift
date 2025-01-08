@@ -5,9 +5,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
-  PlusCircle,
   ListOrdered,
-  CableCar,
   QrCode,
   Users,
   Settings,
@@ -39,11 +37,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
       id: 'menu',
       title: 'Quản lý Menu',
       icon: ListOrdered,
-      submenu: [
-        { id: 'add-dish', title: 'Thêm món mới', icon: PlusCircle, path: '/menu/add-dish' },
-        { id: 'categories', title: 'Danh mục', icon: CableCar, path: '/admin/menu/categories' },
-        { id: 'list-dishes', title: 'Danh sách món', icon: ListOrdered, path: '/admin/menu-items' },
-      ],
+      path: '/admin/menu',
     },
     {
       id: 'orders',
