@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { Tags, ThumbsUp, MoreVertical, Pencil, Trash2Icon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ThumbsUp, MoreVertical, Pencil, Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
 import type { MenuItemType } from '@/types/menu-item';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
@@ -16,6 +16,7 @@ import {
 import { deleteProduct, updateProductBestSeller, updateProductStatus } from '@/actions/menu-item.action';
 import { ModalAction } from '@/components/widgets/ModalAction'
 import EditProduct from '@/components/forms/product-form/edit-product';
+import DeleteConfirmationModal from '@/components/widgets/DeleteConfirmationModal';
 
 interface MenuItemProps {
     product: MenuItemType;
@@ -23,6 +24,8 @@ interface MenuItemProps {
 
 const MenuItem = ({ product }: MenuItemProps) => {
     const [isEditProductOpen, setIsEditProductOpen] = useState<boolean>(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState<boolean>(false);
+
     const [selectedSize, setSelectedSize] = useState<string | null>(
         product.pricePerSize?.length ? product.pricePerSize[0].size : null
     );
@@ -73,13 +76,21 @@ const MenuItem = ({ product }: MenuItemProps) => {
             className="relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100"
         >
             <ModalAction
-                title="Thêm mục menu"
+                title="Chỉnh sửa sản phẩm"
                 isOpen={isEditProductOpen}
                 setIsOpen={setIsEditProductOpen}
             >
                 <EditProduct product={product} onOpenChange={setIsEditProductOpen} />
-                
+
             </ModalAction>
+
+            <DeleteConfirmationModal
+                isOpen={isDeleteConfirmOpen}
+                setIsOpen={setIsDeleteConfirmOpen}
+                onConfirm={handleDeleteProduct}
+                itemName={product.name}
+            />
+
             <div className="relative w-full h-48 overflow-hidden">
                 {/* Skeleton loader or placeholder image */}
                 <Image
@@ -106,10 +117,7 @@ const MenuItem = ({ product }: MenuItemProps) => {
                         <DropdownMenuItem onClick={() => setIsEditProductOpen(true)}>
                             <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <Tags className="mr-2 h-4 w-4" /> Quản lý topping
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleDeleteProduct}>
+                        <DropdownMenuItem onClick={() => setIsDeleteConfirmOpen(true)}>
                             <Trash2Icon className="mr-2 h-4 w-4" /> Xoá
                         </DropdownMenuItem>
                     </DropdownMenuContent>

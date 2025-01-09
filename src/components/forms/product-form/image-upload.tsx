@@ -146,14 +146,14 @@ const ImageUpload = ({
                   "transition-all duration-300",
                   "hover:scale-105"
                 )}
-                quality={95} // Higher quality for product images
+                quality={95}
               />
             </div>
             <button
               onClick={handleRemoveImage}
               className={cn(
                 "absolute top-2 right-2 p-1.5 rounded-full",
-                "bg-destructive text-destructive-foreground",
+                "bg-white text-destructive-foreground",
                 "hover:bg-destructive/90 transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 "shadow-sm"

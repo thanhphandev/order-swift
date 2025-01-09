@@ -4,23 +4,29 @@ import { cn } from '@/lib/utils';
 import { MinusCircleIcon, Plus } from 'lucide-react';
 import { ModalAction } from '@/components/widgets/ModalAction';
 import AddSubcategoryForm from '@/components/forms/AddSubcategory';
+import { deleteSubcategory } from '@/actions/category.action';
+import { toast } from 'sonner';
+
 
 interface SubCategoryListProps {
   subCategories: SubcategoryType[];
   categoryId: string;
-  onSubcategoryDeleted: (subcategoryId: string) => void;
 }
 
 export function SubCategoryList({
   subCategories,
   categoryId,
-  onSubcategoryDeleted,
 }: SubCategoryListProps) {
   const [isAddSubcategoryOpen, setIsAddSubcategoryOpen] = useState(false);
   const [hoveredSubcategory, setHoveredSubcategory] = useState<string | null>(null);
 
-  const handleDeleteSubcategory = (subcategoryId: string) => {
-    onSubcategoryDeleted(subcategoryId);
+  const handleDeleteSubcategory = async(subcategoryId: string) => {
+    try {
+      await deleteSubcategory(subcategoryId);
+      toast.success('Danh mục phụ đã được xoá!');
+    } catch (error) {
+      toast.error('Không thể xoá danh mục phụ. Vui lòng thử lại.');
+    }
   };
 
   return (

@@ -12,6 +12,7 @@ import { SubCategoryList } from "./Subcategory";
 import DeleteConfirmationModal from "../widgets/DeleteConfirmationModal";
 import AddMenuItem from "@/components/menu/add-menu-item";
 import { useCategoryStore } from "@/stores/categories-store";
+import { toast } from "sonner";
 
 interface CategoryBarProps {
   categories: CategoryType[];
@@ -20,48 +21,40 @@ interface CategoryBarProps {
 export function CategoryBar({ categories }: CategoryBarProps) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const {selectedCategory, setSelectedCategory} = useCategoryStore();
+  const { selectedCategory, setSelectedCategory } = useCategoryStore();
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "category" | "subcategory" } | null>(null);
-
 
   const confirmDelete = async () => {
-    if (deleteTarget) {
-      if (deleteTarget.type === "category") {
-        await deleteCategory(deleteTarget.id);
-      } else if (deleteTarget.type === "subcategory") {
-        await deleteSubcategory(deleteTarget.id);
+    if (selectedCategory) {
+      try {
+        await deleteCategory(selectedCategory);
+        toast.success("Danh mục đã được xoá!");
+      } catch(error){
+        toast.error("Không thể xoá danh mục. Vui lòng thử lại.");
       }
     }
     setIsDeleteConfirmOpen(false);
-    setDeleteTarget(null);
-  };
-
-  const requestDelete = (id: string, type: "category" | "subcategory") => {
-    setDeleteTarget({ id, type });
-    setIsDeleteConfirmOpen(true);
   };
 
   const selectedCategoryData = categories.find((category) => category._id === selectedCategory);
 
   return (
     <>
-    <div className="rounded-xl flex flex-col w-full bg-white shadow-sm">
+      <div className="rounded-xl flex flex-col w-full bg-white shadow-sm">
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteConfirmOpen}
-        setIsOpen={setIsDeleteConfirmOpen}
-        onConfirm={confirmDelete}
-        type={deleteTarget?.type || 'category'}
-      />
+        <DeleteConfirmationModal
+          isOpen={isDeleteConfirmOpen}
+          setIsOpen={setIsDeleteConfirmOpen}
+          onConfirm={confirmDelete}
+        />
 
-      <ModalAction title="Thêm danh mục" isOpen={isCategoryOpen} setIsOpen={setIsCategoryOpen}>
-        <AddCategoryForm onOpenChange={setIsCategoryOpen}/>
-      </ModalAction>
+        <ModalAction title="Thêm danh mục" isOpen={isCategoryOpen} setIsOpen={setIsCategoryOpen}>
+          <AddCategoryForm onOpenChange={setIsCategoryOpen} />
+        </ModalAction>
 
-      <div className="flex items-center gap-3 p-4 border-b">
-        <div className="flex flex-wrap gap-4">
-        {categories.map((category) => (
+        <div className="flex items-center gap-3 p-4 border-b">
+          <div className="flex flex-wrap gap-4">
+            {categories.map((category) => (
               <div
                 className="relative"
                 key={category._id}
@@ -81,7 +74,7 @@ export function CategoryBar({ categories }: CategoryBarProps) {
                 </button>
                 {selectedCategoryData?.subcategories?.length === 0 && hoveredCategory === category._id && (
                   <button
-                    onClick={() => requestDelete(category._id, "category")}
+                    onClick={() => setIsDeleteConfirmOpen(true)}
                     className={cn(
                       "absolute -top-3 -right-2 p-1 bg-white rounded-full shadow-sm",
                       "text-red-500"
@@ -93,29 +86,25 @@ export function CategoryBar({ categories }: CategoryBarProps) {
               </div>
             ))}
 
-          <Button
-            onClick={() => setIsCategoryOpen(true)}
-            className="px-4 py-2 bg-orange-500 rounded-xl text-white hover:bg-orange-600 shrink-0"
-          >
-            <Plus size={25} />
-          </Button>
+            <Button
+              onClick={() => setIsCategoryOpen(true)}
+              className="px-4 py-2 bg-orange-500 rounded-xl text-white hover:bg-orange-600 shrink-0"
+            >
+              <Plus size={25} />
+            </Button>
+          </div>
         </div>
+        {selectedCategoryData && (
+          <SubCategoryList
+            subCategories={selectedCategoryData?.subcategories || []}
+            categoryId={selectedCategoryData._id}
+          />
+        )}
+
       </div>
       {selectedCategoryData && (
-        <SubCategoryList
-          subCategories={selectedCategoryData?.subcategories || []}
-          categoryId={selectedCategoryData._id}
-          onSubcategoryDeleted={(id) => requestDelete(id, "subcategory")}
-        />
+        <AddMenuItem />
       )}
-
-    </div>
-
-      {
-        selectedCategoryData && (
-          <AddMenuItem />
-        )
-      }
     </>
   );
 }
