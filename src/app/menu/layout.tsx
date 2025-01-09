@@ -1,19 +1,17 @@
-"use client"
-
-import React, { useState } from 'react'
+import { getCategories } from '@/actions/category.action'
+import { CategoryBar } from '@/components/menu/category-bar';
+import Header from '@/components/menu/header'
 
 interface MenuLayoutProps {
     children: React.ReactNode
 }
-const MenuLayout = ({ children }: MenuLayoutProps) => {
-    const [value, setValue ] = useState('')
-
+const MenuLayout = async({ children }: MenuLayoutProps) => {
+    const categories = await getCategories();
     return (
         <div>
-            <nav>Navigate {value}</nav>
+            <Header />
+            <CategoryBar categories={categories} />
             {children}
-            <button className='bg-red-400 p-4' onClick={() => setValue("XIN CHAO")}>On click</button>
-
         </div>
     )
 }

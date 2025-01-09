@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { ModalAction } from "@/components/widgets/ModalAction";
 import AddCategoryForm from "@/components/forms/AddCategoryForm";
 import { SubCategoryList } from "./Subcategory";
-import DeleteConfirmationModal from "../widgets/DeleteConfirmationModal";
-import AddMenuItem from "@/components/menu/add-menu-item";
+import DeleteConfirmationModal from "../../widgets/DeleteConfirmationModal";
+import AddMenuItem from "@/components/admin/menu/add-menu-item";
 import { useCategoryStore } from "@/stores/categories-store";
 import { toast } from "sonner";
 

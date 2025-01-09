@@ -2,6 +2,7 @@
 
 import connectDB from "@/lib/mongodb";
 import { MenuItem } from "@/models/MenuItem";
+import { Category, Subcategory } from "@/models/Category";
 import { MenuItemType } from "@/types/menu-item";
 import { revalidatePath } from "next/cache";
 import { type ProductFormValues } from "@/schemas/menu-item";
@@ -33,11 +34,11 @@ export const getProducts = async (): Promise<MenuItemType[]> => {
             category: product.category.toString(),
             subcategory: product.subcategory?.toString(),
             price: product.price,
-            pricePerSize: product.pricePerSize?.map((pbs: {size: string, price: number}) => ({
+            pricePerSize: product.pricePerSize?.map((pbs: { size: string, price: number }) => ({
                 size: pbs.size,
                 price: pbs.price,
             })) || [],  // Default to empty array if pricePerSize is not defined
-            topping: product.topping?.map((tp: {size: string, price: number}) => ({
+            topping: product.topping?.map((tp: { size: string, price: number }) => ({
                 size: tp.size,
                 price: tp.price,
             })) || [],  // Default to empty array if topping is not defined
@@ -45,7 +46,7 @@ export const getProducts = async (): Promise<MenuItemType[]> => {
             isAvailable: product.isAvailable,
             isBestSeller: product.isBestSeller,
         }));
-        
+
         return products;
     } catch (error) {
         throw new Error(`Error getting products: ${error}`);
@@ -94,7 +95,7 @@ export const updateProductStatus = async (id: string, isAvailable: boolean) => {
 
 export const updateProductBestSeller = async (id: string, isBestSeller: boolean) => {
     try {
-        const updatedProduct = await MenuItem.findByIdAndUpdate(id, {isBestSeller}, {new: true});
+        const updatedProduct = await MenuItem.findByIdAndUpdate(id, { isBestSeller }, { new: true });
         revalidatePath('/admin/menu');
         return {
             _id: updatedProduct._id.toString(),
@@ -126,4 +127,68 @@ export const deleteProduct = async (id: string) => {
         throw new Error('Failed to delete product. Please try again later.');
     }
 }
+
+export const filterProducts = async (
+    categoryPath?: string,
+    subcategoryPath?: string,
+    isBestSeller?: boolean
+): Promise<MenuItemType[]> => {
+    try {
+        await connectDB();
+
+        const filterConditions: any = {};
+
+        
+        if (categoryPath) {
+            const category = await Category.findOne({ path: categoryPath });
+            if (!category) {
+                throw new Error('Category not found');
+            }
+            if (category) filterConditions.category = category._id;
+        }
+
+        if (subcategoryPath) {
+            const subcategory = await Subcategory.findOne({ path: subcategoryPath });
+            if (!subcategory) {
+                throw new Error('Category not found');
+            }
+            if (subcategory) filterConditions.subcategory = subcategory._id;
+        }
+
+        if (typeof isBestSeller === 'boolean') filterConditions.isBestSeller = isBestSeller;
+
+
+
+        const data = await MenuItem.find(filterConditions);
+
+        // Chuyển đổi dữ liệu MongoDB sang định dạng MenuItemType
+        const filteredProducts: MenuItemType[] = data.map((product) => ({
+            _id: product._id.toString(),
+            name: product.name,
+            description: product.description,
+            category: product.category.toString(),
+            subcategory: product.subcategory?.toString(),
+            price: product.price,
+            pricePerSize:
+                product.pricePerSize?.map((pbs: { size: string; price: number }) => ({
+                    size: pbs.size,
+                    price: pbs.price,
+                })) || [], // Default to empty array if pricePerSize is not defined
+            topping:
+                product.topping?.map((tp: { size: string; price: number }) => ({
+                    size: tp.size,
+                    price: tp.price,
+                })) || [], // Default to empty array if topping is not defined
+            image: product.image,
+            isAvailable: product.isAvailable,
+            isBestSeller: product.isBestSeller,
+        }));
+
+        return filteredProducts;
+    } catch (error) {
+        console.error(`Error filtering products: ${error}`);
+        throw new Error('Failed to filter products. Please try again later.');
+    }
+};
+
 

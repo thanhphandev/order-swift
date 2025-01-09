@@ -48,7 +48,7 @@ const DeleteConfirmationModal = ({
 
           </AlertDialogDescription>
           <p className="text-red-500 font-medium text-center">
-            Hành động này không thể hoàn tác.
+            Dữ liệu này sẽ bị xóa vĩnh viễn
           </p>
 
         </AlertDialogHeader>

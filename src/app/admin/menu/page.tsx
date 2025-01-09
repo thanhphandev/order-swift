@@ -1,8 +1,8 @@
-import { CategoryBar } from '@/components/menu/CategoryBar'
+import { CategoryBar } from '@/components/admin/menu/CategoryBar'
 import { getCategories } from '@/actions/category.action'
 import React from 'react'
 import { getProducts } from '@/actions/menu-item.action';
-import MenuItem from '@/components/menu/menu-item';
+import MenuItem from '@/components/admin/menu/menu-item';
 
 const Menu = async () => {
   const categories = await getCategories();

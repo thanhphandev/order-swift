@@ -4,12 +4,14 @@ import { Category, Subcategory } from '@/models/Category';
 import { CategoryType, SubcategoryType } from '@/types/category';
 import { revalidatePath } from 'next/cache';
 import connectDB from '@/lib/mongodb';
+import { toPathLink } from '@/lib/utils';
 
-export async function addCategory(data: { name: string }) {
+export async function addCategory(data: { name: string}) {
   try {
 
     await connectDB();
-    const category = new Category({ name: data.name });
+    const path = toPathLink(data.name);
+    const category = new Category({ name: data.name, path: path });
     const savedCategory = await category.save();
     revalidatePath('/admin/menu/categories');
     return {
@@ -32,9 +34,11 @@ export async function getCategories(): Promise<CategoryType[]> {
 
     const categories : CategoryType[] = categoriesData.map(category => ({
       _id: category._id.toString(),
+      path: category.path,
       name: category.name,
       subcategories: category.subcategories?.map((subcategory: SubcategoryType) => ({
         _id: subcategory._id.toString(),
+        path: subcategory.path,
         name: subcategory.name,
       })),
     }));
@@ -52,7 +56,8 @@ export async function addSubcategory(data: { name: string; categoryId: string })
   try {
     
     await connectDB();
-    const subcategory = new Subcategory({ name: data.name, categoryId: data.categoryId });
+    const path = toPathLink(data.name);
+    const subcategory = new Subcategory({ name: data.name, path: path, categoryId: data.categoryId });
     const savedSubcategory = await subcategory.save();
 
     await Category.findByIdAndUpdate(data.categoryId, {
@@ -108,7 +113,6 @@ export async function getSubcategories(categoryId: string) {
     // Connect to the database
     await connectDB();
 
-    // Fetch the subcategories for the given categoryId
     const data = await Subcategory.find({ categoryId }).exec();
 
     if (!data || data.length === 0) {

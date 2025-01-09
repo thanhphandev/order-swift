@@ -24,7 +24,7 @@ export default function AddSubcategoryForm({ categoryId, onOpenChange }: AddSubc
     const onSubmit = async (values: z.infer<typeof subcategoryCreateSchema>) => {
         setLoading(true);
         try {
-            await addSubcategory({ name: values.subcategory, categoryId: categoryId }); // update category
+            await addSubcategory({ name: values.subcategory, categoryId: categoryId });
             toast.success("Thêm danh mục con thành công!");
             onOpenChange(false);
         } catch (error) {

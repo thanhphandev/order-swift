@@ -1,20 +1,26 @@
 import React from 'react'
-import Link from 'next/link'
+import { filterProducts } from '@/actions/menu-item.action';
+import { Product } from '@/components/menu/product';
 
-
-const Menu = async({searchParams} : {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) => {
-    const tableName = (await searchParams).table;
+const Menu = async () => {
+  const products = await filterProducts(undefined, undefined, true);
   return (
-    <div>
-        <h1>Menu</h1>
-        {tableName ? (
-        <p>Table: {tableName}</p>
-      ) : (
-        <p>No table selected.</p>
-      )}
-        <Link href="/menu/hem"> Go to page 1</Link>
+    <div
+      className="
+          grid 
+          grid-cols-1 
+          sm:grid-cols-2 
+          md:grid-cols-3 
+          lg:grid-cols-4 
+          gap-6 
+          p-4
+        "
+    >
+      {products.length > 0 ? products.map((product) => (
+        <Product key={product._id}
+          product={product} />
+      )) : <div>No products found</div>}
+
     </div>
   )
 }

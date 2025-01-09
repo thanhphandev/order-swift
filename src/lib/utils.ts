@@ -15,3 +15,26 @@ export function formatMoney(amount: number){
     { style: 'currency',
      currency: 'VND' }).format(amount)
 }
+
+export function toPathLink(text: string): string {
+  
+  const from = "àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ";
+  const to = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd";
+  
+  let normalized = text
+    .toLowerCase()
+    .split('')
+    .map(char => {
+      const index = from.indexOf(char);
+      return index !== -1 ? to[index] : char;
+    })
+    .join('');
+  
+  normalized = normalized
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+
+  return normalized;
+}
+
+
