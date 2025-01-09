@@ -46,10 +46,10 @@ const FormNavigation = ({ step, isSubmitting, previous, next }: FormNavigationPr
                     {isSubmitting ? (
                         <div className="flex items-center gap-2">
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Đang tạo...</span>
+                            <span>Đang thực thi...</span>
                         </div>
                     ) : (
-                        "Tạo món"
+                        "Xác nhận"
                     )}
                 </Button>
             )}

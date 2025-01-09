@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState, Dispatch, SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -13,8 +13,8 @@ import {
   type ProductFormValues,
 } from "@/schemas/menu-item";
 import { toast } from "sonner";
-import { createMenuItem } from "@/actions/menu-item.action";
-import { useCategoryStore } from "@/stores/categories-store";
+import { updateProduct } from "@/actions/menu-item.action";
+import { type MenuItemType } from "@/types/menu-item";
 
 const stepComponents = [
   { component: BasicInformation, fields: ["name", "description", "subcategory"] },
@@ -22,40 +22,29 @@ const stepComponents = [
   { component: AdditionalDetails, fields: ["image", "isAvailable", "isBestSeller"] },
 ];
 
-interface NewProductProps {
+interface EditProductProps {
   onOpenChange: Dispatch<SetStateAction<boolean>>;
+  product: MenuItemType;
 }
 
-export default function NewProduct({onOpenChange}: NewProductProps) {
+export default function EditProduct({ onOpenChange, product }: EditProductProps) {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { selectedCategory } = useCategoryStore()
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      category: selectedCategory ?? "",
-      subcategory: undefined,
-      price: 0,
-      pricePerSize: [],
-      topping: [],
-      image: "",
-      isAvailable: true,
-      isBestSeller: false,
-    },
+    defaultValues: product,
   });
 
   const onSubmit = async (values: ProductFormValues) => {
     try {
       setIsSubmitting(true);
-      await createMenuItem(values)
+      await updateProduct(product._id, values); // Gọi API để cập nhật
       onOpenChange(false);
-      toast.success("Tạo sản phẩm thành công");
+      toast.success("Cập nhật sản phẩm thành công");
     } catch (error) {
-      console.error("Error creating product", error);
-      toast.error("Lỗi tạo sản phẩm");
+      console.error("Error updating product", error);
+      toast.error("Lỗi cập nhật sản phẩm");
     } finally {
       setIsSubmitting(false);
     }

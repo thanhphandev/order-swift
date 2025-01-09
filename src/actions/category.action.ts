@@ -30,7 +30,7 @@ export async function getCategories(): Promise<CategoryType[]> {
 
     const categoriesData = await Category.find().populate('subcategories');
 
-    const categories : CategoryType[]  = categoriesData.map(category => ({
+    const categories : CategoryType[] = categoriesData.map(category => ({
       _id: category._id.toString(),
       name: category.name,
       subcategories: category.subcategories?.map((subcategory: SubcategoryType) => ({

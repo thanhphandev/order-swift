@@ -4,7 +4,7 @@ import connectDB from "@/lib/mongodb";
 import { MenuItem } from "@/models/MenuItem";
 import { MenuItemType } from "@/types/menu-item";
 import { revalidatePath } from "next/cache";
-import { type ProductFormValues,} from "@/schemas/menu-item";
+import { type ProductFormValues } from "@/schemas/menu-item";
 
 export const createMenuItem = async (data: ProductFormValues) => {
     try {
@@ -12,7 +12,6 @@ export const createMenuItem = async (data: ProductFormValues) => {
         await connectDB();
         const savedMenuItem = await menuItem.save();
         revalidatePath('/admin/menu');
-        console.log('savedMenuItem', savedMenuItem);
         return {
             _id: savedMenuItem._id.toString(),
             name: savedMenuItem.name,
@@ -27,7 +26,6 @@ export const getProducts = async (): Promise<MenuItemType[]> => {
         await connectDB();
 
         const data = await MenuItem.find();
-
         const products: MenuItemType[] = data.map((product) => ({
             _id: product._id.toString(),
             name: product.name,
@@ -35,17 +33,97 @@ export const getProducts = async (): Promise<MenuItemType[]> => {
             category: product.category.toString(),
             subcategory: product.subcategory?.toString(),
             price: product.price,
-            pricePerSize: product.pricePerSize || [],
-            topping: product.topping || [],
+            pricePerSize: product.pricePerSize?.map((pbs: {size: string, price: number}) => ({
+                size: pbs.size,
+                price: pbs.price,
+            })) || [],  // Default to empty array if pricePerSize is not defined
+            topping: product.topping?.map((tp: {size: string, price: number}) => ({
+                size: tp.size,
+                price: tp.price,
+            })) || [],  // Default to empty array if topping is not defined
             image: product.image,
             isAvailable: product.isAvailable,
             isBestSeller: product.isBestSeller,
         }));
-
+        
         return products;
     } catch (error) {
         throw new Error(`Error getting products: ${error}`);
     }
 };
 
+export const updateProduct = async (id: string, data: ProductFormValues) => {
+    try {
+        await connectDB();
+        const updatedProduct = await MenuItem.findByIdAndUpdate(id, { ...data }, { new: true });
+        revalidatePath('/admin/menu');
+        return {
+            _id: updatedProduct._id.toString(),
+            name: updatedProduct.name,
+        };
+    } catch (error) {
+        console.error(`Error updating product: ${error}`);
+        throw new Error('Failed to update product. Please try again later.');
+    }
+}
+
+export const updateProductStatus = async (id: string, isAvailable: boolean) => {
+    try {
+        await connectDB();
+
+        const updatedProduct = await MenuItem.findByIdAndUpdate(
+            id,
+            { isAvailable },
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            throw new Error('Product not found.');
+        }
+        revalidatePath('/admin/menu')
+        return {
+            _id: updatedProduct._id.toString(),
+            name: updatedProduct.name,
+            isAvailable: updatedProduct.isAvailable,
+        };
+    } catch (error) {
+        console.error(`Error updating product status: ${error}`);
+        throw new Error('Failed to update product status. Please try again later.');
+    }
+};
+
+export const updateProductBestSeller = async (id: string, isBestSeller: boolean) => {
+    try {
+        const updatedProduct = await MenuItem.findByIdAndUpdate(id, {isBestSeller}, {new: true});
+        revalidatePath('/admin/menu');
+        return {
+            _id: updatedProduct._id.toString(),
+            name: updatedProduct.name,
+            isBestSeller: updatedProduct.isBestSeller,
+        };
+    } catch (error) {
+        console.error(`Error updating product best seller status: ${error}`);
+        throw new Error('Failed to update product best seller status. Please try again later.');
+    }
+}
+
+export const deleteProduct = async (id: string) => {
+    try {
+        await connectDB();
+
+        const deletedProduct = await MenuItem.findByIdAndDelete(id);
+
+        if (!deletedProduct) {
+            throw new Error('Product not found.');
+        }
+        revalidatePath('/admin/menu')
+        return {
+            _id: deletedProduct._id.toString(),
+            name: deletedProduct.name,
+        };
+    } catch (error) {
+        console.error(`Error deleting product: ${error}`);
+        throw new Error('Failed to delete product. Please try again later.');
+    }
+}
 

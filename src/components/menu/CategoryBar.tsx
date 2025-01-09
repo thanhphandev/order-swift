@@ -10,7 +10,7 @@ import { ModalAction } from "@/components/widgets/ModalAction";
 import AddCategoryForm from "@/components/forms/AddCategoryForm";
 import { SubCategoryList } from "./Subcategory";
 import DeleteConfirmationModal from "../widgets/DeleteConfirmationModal";
-import AddMenuItem from "@/components/menu-items/add-menu-item";
+import AddMenuItem from "@/components/menu/add-menu-item";
 import { useCategoryStore } from "@/stores/categories-store";
 
 interface CategoryBarProps {
@@ -113,7 +113,7 @@ export function CategoryBar({ categories }: CategoryBarProps) {
 
       {
         selectedCategoryData && (
-          <AddMenuItem categoryId={selectedCategoryData._id} />
+          <AddMenuItem />
         )
       }
     </>
