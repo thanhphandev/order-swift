@@ -4,45 +4,61 @@ import Image from 'next/image';
 import { Plus, Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { MenuItemType } from '@/types/menu-item';
+import { useCartStore } from '@/stores/cart-store';
+import { useFavoriteProductStore } from '@/stores/favorite-product';
 import { toast } from 'sonner';
+import { formatMoney } from '@/lib/utils';
+import Badge from '@/components/widgets/custom-badge';
+
 interface MenuItemProps {
-    product: MenuItemType;
-    onAddCart?: (item: MenuItemType) => void;
+  product: MenuItemType;
 }
 
-export const Product = ({ product, onAddCart }: MenuItemProps) => {
-
+export const Product = ({ product }: MenuItemProps) => {
+  const { addToCart } = useCartStore();
+  const { favoriteProducts, removeFavoriteProduct, addFavoriteProduct } = useFavoriteProductStore();
+  const [isProductFavorite, setIsProductFavorite] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(
     product.pricePerSize?.length ? product.pricePerSize[0].size : null
   );
- 
+
   const [isLoading, setIsLoading] = useState(false);
 
   const currentPrice = product.pricePerSize?.length
     ? product.pricePerSize.find(p => p.size === selectedSize)?.price
     : product.price;
 
+  const toggleFavorite = () => {
+    if (favoriteProducts.some(p => p._id === product._id)) {
+      removeFavoriteProduct(product._id);
+    } else {
+      addFavoriteProduct(product);
+    }
+  }
+  useEffect(() => {
+    setIsProductFavorite(favoriteProducts.some((p) => p._id === product._id));
+  }, [favoriteProducts, product._id]);
+
   const handleAddToCart = () => {
+    setIsLoading(true);
+    const itemToAdd = {
+      _id: `${product._id}-${selectedSize || ''}`,
+      name: product.name,
+      quantity: 1,
+      size: selectedSize || product.pricePerSize?.[0]?.size,
+      price: currentPrice || product.price,
+      image: product.image,
+    };
+    addToCart(itemToAdd);
     toast.success('Đã thêm một món vào giỏ hàng');
-    // setIsLoading(true); // Show loading spinner when adding to cart
-    // const selectedPrice = pricePerSize?.find(p => p.size === selectedSize)?.price ?? price;
-    // const itemToAdd = {
-    //   id: `${id}-${selectedSize || ''}`,
-    //   name,
-    //   size: selectedSize ?? pricePerSize?.[0]?.size,
-    //   price: selectedPrice,
-    //   image,
-    // };
-    // onAddCart(itemToAdd);
-    // toast.success('Đã thêm một món vào giỏ hàng');
-    // setIsLoading(false); // Hide loading spinner after action
+    setIsLoading(false);
   };
 
   return (
     <div
       className="relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100"
     >
-      {/* Product Image */}
+
       <div className="relative w-full h-48 overflow-hidden">
         {/* Skeleton loader or placeholder image */}
         <div className={`absolute inset-0 bg-gray-300 animate-pulse ${isLoading ? 'opacity-100' : 'opacity-0'}`} />
@@ -56,22 +72,19 @@ export const Product = ({ product, onAddCart }: MenuItemProps) => {
         />
         {/* Favorite Button */}
         <button
-          onClick={() => {
-            toast.success(
-              'Đã thêm vào danh sách yêu thích'
-            );
-          }}
+          onClick={toggleFavorite}
           className="absolute top-3 right-3 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition-colors"
         >
           <Heart
-            className={`w-5 h-5 text-red-500 fill-red-500`}
+            className={`w-5 h-5 ${isProductFavorite ? "text-red-500 fill-red-500" : "text-gray-500 "}`}
           />
         </button>
+        {product.isBestSeller && (
+          <Badge variant="best-seller" />
+        )}
 
         {product.isAvailable === false && (
-          <div className="absolute bottom-3 left-3 px-3 py-1 bg-orange-500 text-white text-sm font-medium rounded-full">
-            Hết hàng
-          </div>
+          <Badge variant="out-of-stock" />
         )}
       </div>
 
@@ -82,7 +95,7 @@ export const Product = ({ product, onAddCart }: MenuItemProps) => {
             {product.name}
           </h3>
           <span className="text-green-600 font-semibold text-base">
-            {currentPrice?.toLocaleString()}đ
+            {formatMoney(currentPrice || 0)}
           </span>
         </div>
 
@@ -94,14 +107,14 @@ export const Product = ({ product, onAddCart }: MenuItemProps) => {
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
-                  selectedSize === size
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-all border ${selectedSize === size
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-md'
+                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:border-gray-400'
+                  }`}
               >
                 {size}
               </button>
+
             ))}
           </div>
         )}
@@ -110,7 +123,8 @@ export const Product = ({ product, onAddCart }: MenuItemProps) => {
           <div className="mt-4 flex justify-between items-center">
             <button
               onClick={handleAddToCart}
-              className={`flex items-center justify-center ${isLoading ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'} text-white px-4 py-2 rounded-full transition-colors space-x-2 w-full`}
+              className={`flex items-center justify-center ${isLoading ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
+                } text-white px-4 py-2 rounded-full transition-transform duration-200 space-x-2 w-full`}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -122,6 +136,7 @@ export const Product = ({ product, onAddCart }: MenuItemProps) => {
                 </>
               )}
             </button>
+
           </div>
         )}
       </div>

@@ -4,7 +4,7 @@ import React from 'react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Donut, Ruler } from 'lucide-react'
+import { Donut, Ruler, TestTube2 } from 'lucide-react'
 import {
     FormControl,
     FormField,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Plus, Trash2 } from "lucide-react";
 import type { ProductFormValues } from '@/schemas/menu-item'
+import DevelopmentNotice from '@/components/dev/development-notice'
 
 const PricingOptions = () => {
     const form = useFormContext<ProductFormValues>();
@@ -35,7 +36,7 @@ const PricingOptions = () => {
                         <Ruler className="w-4 h-4" />
                         Tùy chọn Size
                     </p>
-                    <Button type='button' variant="outline" size="sm" className='rounded-xl' onClick={() => appendSize({ size: '', price: 0 })}>
+                    <Button type='button' variant="outline" size="sm" onClick={() => appendSize({ size: '', price: 0 })}>
                         <Plus className='h-4 w-4 mr-2' />
                         Thêm size
                     </Button>
@@ -114,11 +115,13 @@ const PricingOptions = () => {
                         <Donut className="w-4 h-4" />
                         Tùy chọn Topping
                     </p>
-                    <Button type='button' variant="outline" size="sm" onClick={() => appendTopping({ name: '', price: 0 })}>
+                    {/* <Button type='button' variant="outline" size="sm" onClick={() => appendTopping({ name: '', price: 0 })}>
                         <Plus className='h-4 w-4 mr-2' />
                         Thêm topping
-                    </Button>
+                    </Button> */}
                 </div>
+                <DevelopmentNotice />
+
                 <div className='space-y-4 max-h-[150px] overflow-y-auto'>
                     {toppingFields.map((field, index) => (
                         <div key={field.id} className='flex gap-4 items-center'>

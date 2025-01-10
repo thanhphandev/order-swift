@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Settings, Menu, LogOut } from 'lucide-react';
+import { Bell, Settings, Menu, LogOut, LucideMenuSquare } from 'lucide-react';
+import Link from 'next/link'
 
 interface AdminHeaderProps {
     onMenuClick: () => void
@@ -18,6 +19,9 @@ const AdminHeader = ({ onMenuClick }: AdminHeaderProps) => {
                     </button>
 
                     <div className="flex items-center space-x-2">
+                        <Link href={'/menu'}>
+                            <LucideMenuSquare className='h-5 w-5 text-orange-600'/>
+                        </Link>
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
