@@ -2,6 +2,7 @@ import React from 'react';
 import { Minus, Plus } from 'lucide-react';
 import type { CartProductType } from '@/types/cart-product';
 import { formatMoney } from '@/lib/utils';
+import Image from 'next/image';
 
 interface CartProductProps {
     product: CartProductType;
@@ -12,13 +13,18 @@ export function CartProduct({ product, onUpdateQuantity }: CartProductProps) {
     return (
         <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-3">
-                <img
+                <Image
                     src={product.image}
                     alt={product.name}
-                    className="w-12 h-12 rounded-lg object-cover"
+                    width={96}
+                    height={96}
+                    className="rounded-lg h-12 w-12 object-cover"
+                    quality={100}
+                    priority
                 />
+
                 <div>
-                    <h3 className="font-medium">{product.name}</h3>
+                    <h3 className="font-bold text-orange-500">{product.name}</h3>
                     {product.size && <span className="text-sm text-gray-500">{product.size}</span>}
                     <p className="text-gray-600">
                         {formatMoney(product.price)} x {product.quantity}

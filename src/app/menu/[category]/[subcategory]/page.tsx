@@ -1,7 +1,22 @@
 import React from 'react'
 import { filterProducts } from '@/actions/menu-item.action';
+import { getCategories } from '@/actions/category.action';
 import { Product } from '@/components/menu/product';
 import NoResultsFound from '@/components/widgets/not-found-product';
+import { SubcategoryType } from '@/types/category';
+
+export const revalidate = 30
+
+export async function generateStaticParams() {
+  const categories = await getCategories();
+
+  const subcategory = categories.flatMap((category) =>
+    category?.subcategories?.map((subcategory: SubcategoryType) => ({
+      params: { slug: subcategory.path || '' },
+    })) || []
+  );
+  return subcategory;
+}
 
 const page = async ({ params }: { params: Promise<{ subcategory: string }> }) => {
   const subcategory = (await params).subcategory;

@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import CartButton from '@/components/cart/cart-button';
-import { X, ShoppingBag } from 'lucide-react';
+import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CartProduct } from './cart-product';
 import { useCartStore } from '@/stores/cart-store';

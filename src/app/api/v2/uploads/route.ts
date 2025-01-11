@@ -6,7 +6,7 @@ export const config = {
     }
 };
 
-export async function POST(req: NextRequest, res: NextResponse){
+export async function POST(req: NextRequest){
     const data = await req.formData();
     const file = data.get('file');
 

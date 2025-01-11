@@ -6,13 +6,13 @@ import { useState } from 'react';
 import type { MenuItemType } from '@/types/menu-item';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Badge from '@/components/widgets/custom-badge';
 import { deleteProduct, updateProductBestSeller, updateProductStatus } from '@/actions/menu-item.action';
 import { ModalAction } from '@/components/widgets/ModalAction'
 import EditProduct from '@/components/forms/product-form/edit-product';
@@ -44,6 +44,7 @@ const MenuItem = ({ product }: MenuItemProps) => {
         try {
             await updateProductStatus(product._id, newState);
         } catch (error) {
+            console.log(error)
             setIsAvailable(!newState);
             toast.error('Không thể cập nhật trạng thái sản phẩm. Vui lòng thử lại.');
         }
@@ -54,6 +55,7 @@ const MenuItem = ({ product }: MenuItemProps) => {
             await deleteProduct(product._id);
             toast.success('Sản phẩm đã được xoá!');
         } catch (error) {
+            console.log(error)
             toast.error('Không thể xoá sản phẩm. Vui lòng thử lại.');
         }
     };
@@ -67,6 +69,7 @@ const MenuItem = ({ product }: MenuItemProps) => {
                     : 'Sản phẩm đã được đặt là sản phẩm bán chạy.'
             );
         } catch (error) {
+            console.log(error)
             toast.error('Không thể cập nhật trạng thái sản phẩm. Vui lòng thử lại.');
         }
     }
@@ -123,17 +126,17 @@ const MenuItem = ({ product }: MenuItemProps) => {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <div className="absolute bottom-3 left-3 flex flex-col gap-2">
-                    {isAvailable === false && (
-                        <Badge variant="destructive" className="bg-red-500 rounded-xl">
-                            Hết hàng
-                        </Badge>
-                    )}
-                    {product.isBestSeller && (
-                        <Badge variant="default" className="bg-amber-500 rounded-xl">
-                            🔥 Bán chạy
-                        </Badge>
-                    )}
+                <div className='flex flex-col gap-1.5 absolute bottom-3 left-3'>
+                    {
+                        product.isBestSeller && (
+                            <Badge variant="best-seller" />
+                        )
+                    }
+                    {
+                        product.isAvailable === false && (
+                            <Badge variant="out-of-stock" />
+                        )
+                    }
                 </div>
             </div>
 
@@ -152,7 +155,7 @@ const MenuItem = ({ product }: MenuItemProps) => {
 
                 {product.pricePerSize && product.pricePerSize.length > 0 && (
                     <div className="flex gap-2">
-                        {product.pricePerSize.map(({ size, price }) => (
+                        {product.pricePerSize.map(({ size }) => (
                             <button
                                 key={size}
                                 onClick={() => setSelectedSize(size)}

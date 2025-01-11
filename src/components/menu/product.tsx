@@ -68,7 +68,7 @@ export const Product = ({ product }: MenuItemProps) => {
           fill
           className="object-cover transition-transform duration-300 hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          onLoadingComplete={() => setIsLoading(false)} // Image load complete
+          onLoad={() => setIsLoading(false)} // Image load complete
         />
         {/* Favorite Button */}
         <button
@@ -79,13 +79,19 @@ export const Product = ({ product }: MenuItemProps) => {
             className={`w-5 h-5 ${isProductFavorite ? "text-red-500 fill-red-500" : "text-gray-500 "}`}
           />
         </button>
-        {product.isBestSeller && (
-          <Badge variant="best-seller" />
-        )}
+        <div className='flex flex-col gap-1.5 absolute top-3 left-3'>
+          {
+            product.isBestSeller && (
+              <Badge variant="best-seller" />
+            )
+          }
+          {
+            product.isAvailable === false && (
+              <Badge variant="out-of-stock" />
+            )
+          }
+        </div>
 
-        {product.isAvailable === false && (
-          <Badge variant="out-of-stock" />
-        )}
       </div>
 
       {/* Product Details */}

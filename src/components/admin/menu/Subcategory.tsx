@@ -25,6 +25,7 @@ export function SubCategoryList({
       await deleteSubcategory(subcategoryId);
       toast.success('Danh mục phụ đã được xoá!');
     } catch (error) {
+      console.log(error);
       toast.error('Không thể xoá danh mục phụ. Vui lòng thử lại.');
     }
   };

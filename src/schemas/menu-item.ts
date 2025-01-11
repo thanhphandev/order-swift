@@ -1,4 +1,3 @@
-import { Subcategory } from "@/models/Category";
 import { z } from "zod";
 
 export const basicInformationSchema = z.object({

@@ -13,7 +13,7 @@ export async function addCategory(data: { name: string}) {
     const path = toPathLink(data.name);
     const category = new Category({ name: data.name, path: path });
     const savedCategory = await category.save();
-    revalidatePath('/admin/menu/categories');
+    revalidatePath('/admin/menu');
     return {
       _id: savedCategory._id.toString(),
       name: savedCategory.name
@@ -63,7 +63,7 @@ export async function addSubcategory(data: { name: string; categoryId: string })
     await Category.findByIdAndUpdate(data.categoryId, {
       $push: { subcategories: savedSubcategory._id },
     });
-    revalidatePath('/admin/menu/categories');
+    revalidatePath('/admin/menu');
     return {
       _id: savedSubcategory._id.toString(),
       name: savedSubcategory.name

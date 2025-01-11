@@ -37,4 +37,9 @@ export function toPathLink(text: string): string {
   return normalized;
 }
 
+export const getSegment = (path: string) => {
+  const segments = path.split('/').filter(Boolean);
+  return segments;
+}
+
 

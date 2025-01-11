@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Plus, MinusCircleIcon } from "lucide-react";
 import type { CategoryType } from "@/types/category";
 import { cn } from "@/lib/utils";
-import { deleteCategory, deleteSubcategory } from "@/actions/category.action";
+import { deleteCategory } from "@/actions/category.action";
 import { Button } from "@/components/ui/button";
 import { ModalAction } from "@/components/widgets/ModalAction";
 import AddCategoryForm from "@/components/forms/AddCategoryForm";
@@ -30,6 +30,7 @@ export function CategoryBar({ categories }: CategoryBarProps) {
         await deleteCategory(selectedCategory);
         toast.success("Danh mục đã được xoá!");
       } catch(error){
+        console.log(error)
         toast.error("Không thể xoá danh mục. Vui lòng thử lại.");
       }
     }

@@ -1,20 +1,13 @@
 'use client'
 
 import React from 'react';
-import { SearchX } from 'lucide-react';
+import { FileX } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
-interface NoResultsFoundProps {
-    searchTerm?: string;
-    showActions?: boolean;
-}
-
-const NoResultsFound = ({
-    searchTerm = "",
-    showActions = false,
-}: NoResultsFoundProps) => {
+const NotFoundPage = () => {
     const router = useRouter();
+    
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -34,7 +27,7 @@ const NoResultsFound = ({
                 className="relative mb-6"
             >
                 <div className="w-20 h-20 md:w-24 md:h-24 bg-orange-100 rounded-full flex items-center justify-center">
-                    <SearchX className="w-10 h-10 md:w-12 md:h-12 text-orange-500" />
+                    <FileX className="w-10 h-10 md:w-12 md:h-12 text-orange-500" />
                 </div>
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -62,17 +55,13 @@ const NoResultsFound = ({
                 className="px-4 md:px-8"
             >
                 <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
-                    Không tìm thấy kết quả
+                    Không tìm thấy trang
                 </h2>
-                {searchTerm && (
-                    <p className="text-sm md:text-base text-gray-500 mb-2">
-                        Không tìm thấy kết quả cho từ khóa
-                        <span className="font-medium text-gray-700">"{searchTerm}"</span>
-                    </p>
-                )}
+                <p className="text-sm md:text-base text-gray-500 mb-2">
+                    Trang bạn đang tìm kiếm có thể đã bị xóa hoặc không tồn tại
+                </p>
                 <p className="text-sm md:text-base text-gray-500 max-w-sm md:max-w-lg mx-auto">
-                    Rất tiếc, chúng tôi không tìm thấy sản phẩm nào phù hợp.
-                    Vui lòng thử tìm kiếm với từ khóa khác.
+                    Vui lòng kiểm tra lại đường dẫn hoặc quay về trang chủ
                 </p>
             </motion.div>
 
@@ -89,30 +78,28 @@ const NoResultsFound = ({
                 <div className="absolute top-1/3 right-10 w-3 h-3 md:w-4 md:h-4 bg-orange-100 rounded-full" />
             </motion.div>
 
-            {/* Optional Action Buttons */}
-            {showActions && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="mt-6 space-x-4"
+            {/* Action Buttons */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-6 space-x-4"
+            >
+                <button
+                    onClick={() => router.back()}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl shadow"
                 >
-                    <button
-                        onClick={() => router.back()}
-                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg shadow"
-                    >
-                        Quay lại
-                    </button>
-                    <button
-                        onClick={() => router.push('/')}
-                        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow"
-                    >
-                        Về trang chủ
-                    </button>
-                </motion.div>
-            )}
+                    Quay lại
+                </button>
+                <button
+                    onClick={() => router.push('/')}
+                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow"
+                >
+                    Về trang chủ
+                </button>
+            </motion.div>
         </motion.div>
     );
 };
 
-export default NoResultsFound;
+export default NotFoundPage;

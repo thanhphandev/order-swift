@@ -17,8 +17,7 @@ interface ImageUploadProps {
   blur?: boolean
 }
 
-// Constants
-const DEFAULT_MAX_SIZE = 5 * 1024 * 1024 // 5MB
+
 const ACCEPTED_TYPES = {
   'image/jpeg': [],
   'image/png': [],

@@ -3,6 +3,8 @@ import { filterProducts } from '@/actions/menu-item.action';
 import { Product } from '@/components/menu/product';
 import NoResultsFound from '@/components/widgets/not-found-product';
 
+export const revalidate = 30
+
 const Menu = async () => {
   const products = await filterProducts(undefined, undefined, true);
   return (

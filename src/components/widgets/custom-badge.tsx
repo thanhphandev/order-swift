@@ -34,8 +34,8 @@ interface BadgeProps {
 
 const badgeConfig = {
   "best-seller": {
-    text: "bán chạy",
-    gradient: "from-amber-500/90 to-orange-500/90",
+    text: "Bán chạy",
+    gradient: "from-purple-500/90 to-pink-500/90",
     Icon: FlameIcon,
   },
   trending: {
@@ -50,7 +50,7 @@ const badgeConfig = {
   },
   featured: {
     text: "Featured",
-    gradient: "from-purple-500/90 to-pink-500/90",
+    gradient: "from-amber-500/90 to-orange-500/90",
     Icon: Star,
   },
   "out-of-stock": {
@@ -74,7 +74,7 @@ const Badge: React.FC<BadgeProps> = ({ variant }) => {
       variants={containerVariants}
       initial="initial"
       animate="animate"
-      className="absolute left-3 top-3 z-10"
+      className="z-20"
     >
       <div className="relative group">
         {/* Badge container */}

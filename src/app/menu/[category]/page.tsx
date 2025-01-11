@@ -1,7 +1,17 @@
 import React from 'react'
 import { filterProducts } from '@/actions/menu-item.action';
+import { getCategories } from '@/actions/category.action';
 import { Product } from '@/components/menu/product';
 import NoResultsFound from '@/components/widgets/not-found-product';
+
+export const revalidate = 30
+
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((category) => ({
+    category: category.path,
+  })) || [];
+}
 
 const page = async ({ params }: { params: Promise<{ category: string }> }) => {
   const categoryPath = (await params).category;
