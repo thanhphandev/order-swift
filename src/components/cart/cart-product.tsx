@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 interface CartProductProps {
     product: CartProductType;
-    onUpdateQuantity: (id: string, quantity: number) => void;
+    onUpdateQuantity: (name: string, size: string, quantity: number) => void;
 }
 
 export function CartProduct({ product, onUpdateQuantity }: CartProductProps) {
@@ -33,14 +33,14 @@ export function CartProduct({ product, onUpdateQuantity }: CartProductProps) {
             </div>
             <div className="flex items-center gap-2">
                 <button
-                    onClick={() => onUpdateQuantity(product._id, product.quantity - 1)}
+                    onClick={() => onUpdateQuantity(product.name, product.size || "", product.quantity - 1)}
                     className="p-1 rounded-full hover:bg-gray-100"
                 >
                     <Minus className="w-4 h-4" />
                 </button>
                 <span className="w-6 text-center text-sm">{product.quantity}</span>
                 <button
-                    onClick={() => onUpdateQuantity(product._id, product.quantity + 1)}
+                    onClick={() => onUpdateQuantity(product.name, product.size || "", product.quantity + 1)}
                     className="p-1 rounded-full hover:bg-gray-100"
                 >
                     <Plus className="w-4 h-4" />

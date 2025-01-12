@@ -15,11 +15,33 @@ const NoResultsFound = ({
     showActions = false,
 }: NoResultsFoundProps) => {
     const router = useRouter();
+
+    // Animation variants for floating dots
+    const floatingAnimation = {
+        initial: { y: 0 },
+        animate: {
+            y: [0, -10, 0],
+            transition: {
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }
+        }
+    };
+
+    // Different timing for each dot
+    const dotDelays = {
+        dot1: 0,
+        dot2: 0.5,
+        dot3: 1,
+        dot4: 1.5
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center"
+            className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center relative"
         >
             {/* Icon Container with Animation */}
             <motion.div
@@ -76,18 +98,48 @@ const NoResultsFound = ({
                 </p>
             </motion.div>
 
-            {/* Decorative Elements */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                transition={{ delay: 0.5 }}
-                className="absolute inset-0 pointer-events-none"
-            >
-                <div className="absolute top-10 left-10 w-2 h-2 md:w-3 md:h-3 bg-orange-200 rounded-full" />
-                <div className="absolute top-20 right-20 w-2 h-2 md:w-3 md:h-3 bg-orange-300 rounded-full" />
-                <div className="absolute bottom-10 left-1/4 w-2 h-2 md:w-3 md:h-3 bg-orange-200 rounded-full" />
-                <div className="absolute top-1/3 right-10 w-3 h-3 md:w-4 md:h-4 bg-orange-100 rounded-full" />
-            </motion.div>
+            {/* Animated Decorative Elements */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <motion.div
+                    variants={floatingAnimation}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ delay: dotDelays.dot1 }}
+                    className="absolute top-10 left-10"
+                >
+                    <div className="w-2 h-2 md:w-3 md:h-3 bg-orange-200 rounded-full" />
+                </motion.div>
+                
+                <motion.div
+                    variants={floatingAnimation}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ delay: dotDelays.dot2 }}
+                    className="absolute top-20 right-20"
+                >
+                    <div className="w-2 h-2 md:w-3 md:h-3 bg-orange-300 rounded-full" />
+                </motion.div>
+                
+                <motion.div
+                    variants={floatingAnimation}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ delay: dotDelays.dot3 }}
+                    className="absolute bottom-7 left-1/4"
+                >
+                    <div className="w-2 h-2 md:w-3 md:h-3 bg-orange-200 rounded-full" />
+                </motion.div>
+                
+                <motion.div
+                    variants={floatingAnimation}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ delay: dotDelays.dot4 }}
+                    className="absolute top-1/3 right-10"
+                >
+                    <div className="w-3 h-3 md:w-4 md:h-4 bg-orange-100 rounded-full" />
+                </motion.div>
+            </div>
 
             {/* Optional Action Buttons */}
             {showActions && (

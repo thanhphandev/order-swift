@@ -9,36 +9,166 @@ import { useCartStore } from '@/stores/cart-store';
 import { formatMoney } from '@/lib/utils';
 import { toast } from 'sonner';
 import { DiningOption } from '@/components/cart/option-button';
+import { CreateOrderData, status, typeOrder } from "@/types/order";
+import { createOrder } from '@/actions/order.action';
+
 
 const CartView = ({ tables }: { tables: string[] }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [tableNumber, setTableNumber] = useState<string | null>(null);
-    const [note, setNote] = useState<string>('');
-    const [diningOption, setDiningOption] = useState<'dine-in' | 'takeaway'>('dine-in');
-
+    const [notes, setNotes] = useState<string>('');
+    const [diningOption, setDiningOption] = useState<typeOrder>('dine-in');
+    const [deliveryAddress, setDeliveryAddress] = useState<string>('');
+    const [customerName, setCustomerName] = useState<string>('');
+    const [phoneNumber, setPhoneNumber] = useState<string>('');
     const { cartProducts, updateQuantity, clearCart } = useCartStore();
 
     const subTotal = cartProducts.reduce((sum, product) => sum + product.price * product.quantity, 0);
     const totalQuantity = cartProducts.reduce((sum, product) => sum + product.quantity, 0);
 
+    // Validation functions
+    const validatePhoneNumber = (phone: string) => {
+        const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+        return phoneRegex.test(phone);
+    };
+
+    const validateDeliveryInfo = () => {
+        if (!customerName.trim()) {
+            toast.error('Vui lòng nhập tên người nhận');
+            return false;
+        }
+        if (!phoneNumber.trim()) {
+            toast.error('Vui lòng nhập số điện thoại');
+            return false;
+        }
+        if (!validatePhoneNumber(phoneNumber)) {
+            toast.error('Số điện thoại không hợp lệ');
+            return false;
+        }
+        if (!deliveryAddress.trim()) {
+            toast.error('Vui lòng nhập địa chỉ giao hàng');
+            return false;
+        }
+        return true;
+    };
+
+    const validateTakeAwayInfo = () => {
+        if (!customerName.trim()) {
+            toast.error('Vui lòng nhập tên người nhận');
+            return false;
+        }
+        if (!phoneNumber.trim()) {
+            toast.error('Vui lòng nhập số điện thoại');
+            return false;
+        }
+        if (!validatePhoneNumber(phoneNumber)) {
+            toast.error('Số điện thoại không hợp lệ');
+            return false;
+        }
+        return true;
+    };
+
     const handleClose = useCallback((e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
         setIsOpen(false);
+        // Reset form
+        setTableNumber(null);
+        setNotes('');
+        setDeliveryAddress('');
+        setCustomerName('');
+        setPhoneNumber('');
     }, []);
 
-    const handleOrder = () => {
+    const handleOrder = async () => {
+        if (cartProducts.length === 0) {
+            toast.error('Giỏ hàng trống');
+            return;
+        }
+
+        // Validate based on dining option
         if (diningOption === 'dine-in' && !tableNumber) {
             toast.error('Vui lòng chọn số bàn');
             return;
         }
-        toast.success('Đặt món thành công');
-        setIsOpen(false);
+
+        if (diningOption === 'delivery' && !validateDeliveryInfo()) {
+            return;
+        }
+
+        if (diningOption === 'take-away' && !validateTakeAwayInfo()) {
+            return;
+        }
+
+        const orderData = {
+            table: tableNumber || null,
+            items: cartProducts.map((product) => ({
+                _id: product._id,
+                name: product.name,
+                quantity: product.quantity,
+                size: product.size,
+                price: product.price,
+            })),
+            status: 'pending' as status,
+            typeOrder: diningOption,
+            totalAmount: subTotal,
+            notes: notes,
+            customerInfo: diningOption !== 'dine-in' ? {
+                name: customerName,
+                phone: phoneNumber,
+                address: diningOption === 'delivery' ? deliveryAddress || '' : ''
+            } : null
+        };
+        try {
+            console.log('Order data:', orderData.items.map(item => item._id));
+            await createOrder(orderData);
+            toast.success('Đặt món thành công! vui long chờ nhân viên xác nhận');
+        } catch (error) {
+            console.error('Error creating order:', error);
+            toast.error('Đặt món thất bại');
+            return;
+        }
+
+        handleClose();
         clearCart();
     };
 
     if (!isOpen) {
         return <CartButton itemCount={totalQuantity} onClick={() => setIsOpen(true)} />;
     }
+
+    const renderCustomerInfoFields = () => (
+        <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="p-4 border-b space-y-4"
+        >
+            <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                    Tên người nhận *
+                </label>
+                <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                    placeholder="Nhập tên người nhận"
+                />
+            </div>
+            <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                    Số điện thoại *
+                </label>
+                <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                    placeholder="Nhập số điện thoại"
+                />
+            </div>
+        </motion.div>
+    );
 
     return (
         <AnimatePresence mode="wait">
@@ -79,21 +209,38 @@ const CartView = ({ tables }: { tables: string[] }) => {
                                 <DiningOption
                                     label="Ăn tại quán"
                                     selected={diningOption === 'dine-in'}
-                                    onClick={() => setDiningOption('dine-in')}
+                                    onClick={() => {
+                                        setDiningOption('dine-in');
+                                        setCustomerName('');
+                                        setPhoneNumber('');
+                                        setDeliveryAddress('');
+                                    }}
                                 />
                                 <DiningOption
                                     label="Mang về"
-                                    selected={diningOption === 'takeaway'}
-                                    onClick={() => setDiningOption('takeaway')}
+                                    selected={diningOption === 'take-away'}
+                                    onClick={() => {
+                                        setDiningOption('take-away');
+                                        setTableNumber(null);
+                                        setDeliveryAddress('');
+                                    }}
+                                />
+                                <DiningOption
+                                    label="Giao hàng"
+                                    selected={diningOption === 'delivery'}
+                                    onClick={() => {
+                                        setDiningOption("delivery");
+                                        setTableNumber(null);
+                                    }}
                                 />
                             </div>
                         </div>
 
                         <div className="p-4 space-y-2">
                             <AnimatePresence mode="popLayout">
-                                {cartProducts.map((product) => (
+                                {cartProducts.map((product, index) => (
                                     <motion.div
-                                        key={product._id}
+                                        key={index}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -108,52 +255,81 @@ const CartView = ({ tables }: { tables: string[] }) => {
                             )}
                         </div>
 
-                        {/* Table Selection */}
+                        {/* Dynamic Form Fields based on Option */}
                         <AnimatePresence>
-                            {diningOption === 'dine-in' && cartProducts.length > 0 && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    className="overflow-hidden"
-                                >
-                                    {tableNumber === null && (
-                                        <div className="p-4 border-b">
-                                            <label className="text-sm font-medium text-gray-700 block mb-2">
-                                                Số bàn
-                                            </label>
-                                            <select
-                                                value={tableNumber ?? ""}
-                                                onChange={(e) => setTableNumber(e.target.value)}
-                                                className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                                            >
-                                                <option value="" disabled>
-                                                    Chọn số bàn
-                                                </option>
-                                                {tables.map((table) => (
-                                                    <option key={table} value={table}>
-                                                        {table}
+                            {cartProducts.length > 0 && (
+                                <>
+                                    {/* Dine-in Option */}
+                                    {diningOption === 'dine-in' && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="p-4 border-b">
+                                                <label className="text-sm font-medium text-gray-700 block mb-2">
+                                                    Số bàn *
+                                                </label>
+                                                <select
+                                                    value={tableNumber ?? ""}
+                                                    onChange={(e) => setTableNumber(e.target.value)}
+                                                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                >
+                                                    <option value="" disabled>
+                                                        Chọn số bàn
                                                     </option>
-                                                ))}
-                                            </select>
-                                        </div>
+                                                    {tables.map((table) => (
+                                                        <option key={table} value={table}>
+                                                            {table}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </motion.div>
                                     )}
-                                </motion.div>
+
+                                    {/* Take-away Option */}
+                                    {diningOption === 'take-away' && renderCustomerInfoFields()}
+
+                                    {/* Delivery Option */}
+                                    {diningOption === 'delivery' && (
+                                        <>
+                                            {renderCustomerInfoFields()}
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="p-4 border-b"
+                                            >
+                                                <label className="text-sm font-medium text-gray-700 block mb-2">
+                                                    Địa chỉ giao hàng *
+                                                </label>
+                                                <textarea
+                                                    value={deliveryAddress}
+                                                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                                                    placeholder="Nhập địa chỉ giao hàng"
+                                                    className="w-full p-2 border rounded-lg h-20 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                />
+                                            </motion.div>
+                                        </>
+                                    )}
+
+                                    {/* Notes Field */}
+                                    <div className="p-4 border-b">
+                                        <label className="text-sm font-medium text-gray-700 block mb-2">
+                                            Ghi chú
+                                        </label>
+                                        <textarea
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                            placeholder="Ghi chú thêm về đơn hàng..."
+                                            className="w-full p-2 border rounded-lg h-20 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                        />
+                                    </div>
+                                </>
                             )}
                         </AnimatePresence>
-
-                        {/* Notes */}
-                        {cartProducts.length > 0 && (
-                            <div className="p-4 border-b">
-                                <label className="text-sm font-medium text-gray-700 block mb-2">Ghi chú</label>
-                                <textarea
-                                    value={note}
-                                    onChange={(e) => setNote(e.target.value)}
-                                    placeholder="Ghi chú thêm về đơn hàng..."
-                                    className="w-full p-2 border rounded-xl h-20 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                                />
-                            </div>
-                        )}
 
                         {/* Payment Section */}
                         {cartProducts.length > 0 && (
@@ -168,7 +344,6 @@ const CartView = ({ tables }: { tables: string[] }) => {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     className="w-full bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600 transition-colors"
-                                    disabled={!diningOption || (diningOption === 'dine-in' && !tableNumber)}
                                     onClick={handleOrder}
                                 >
                                     Đặt món

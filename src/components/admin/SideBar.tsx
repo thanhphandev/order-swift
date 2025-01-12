@@ -44,8 +44,8 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
       title: 'Đơn hàng',
       icon: History,
       submenu: [
-        { id: 'current-orders', title: 'Đơn hiện tại', icon: Table, path: '/orders/current' },
-        { id: 'order-history', title: 'Lịch sử đơn', icon: History, path: '/orders/history' },
+        { id: 'current-orders', title: 'Đơn hiện tại', icon: Table, path: '/admin/orders/current' },
+        { id: 'order-history', title: 'Lịch sử đơn', icon: History, path: '/admin/orders/history' },
       ],
     },
     {

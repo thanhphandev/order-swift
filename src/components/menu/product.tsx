@@ -15,8 +15,8 @@ interface MenuItemProps {
 }
 
 export const Product = ({ product }: MenuItemProps) => {
-  const { addToCart } = useCartStore();
   const { favoriteProducts, removeFavoriteProduct, addFavoriteProduct } = useFavoriteProductStore();
+  const { addToCart } = useCartStore();
   const [isProductFavorite, setIsProductFavorite] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(
     product.pricePerSize?.length ? product.pricePerSize[0].size : null
@@ -42,7 +42,7 @@ export const Product = ({ product }: MenuItemProps) => {
   const handleAddToCart = () => {
     setIsLoading(true);
     const itemToAdd = {
-      _id: `${product._id}-${selectedSize || ''}`,
+      _id: product._id,
       name: product.name,
       quantity: 1,
       size: selectedSize || product.pricePerSize?.[0]?.size,

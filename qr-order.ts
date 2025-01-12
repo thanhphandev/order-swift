@@ -33,7 +33,7 @@ interface order {
         menuItem: string, // Link to menuItem._id
         quantity: number,
         size?: string,
-        options?: [{
+        topping?: [{
             name: string,
             price: number,
         }],
@@ -49,6 +49,14 @@ interface order {
     createdAt: Date,
     updatedAt: Date,
 }
+
+//
+// Sau khi truy cập, khách hàng chọn hình thức đặt hàng:
+
+//     Dine-in (Ăn tại chỗ): Cần nhập số bàn nếu QR không gắn với bàn.
+//     Take-away (Mang về): Chỉ yêu cầu tên khách hàng và số điện thoại.
+//     Delivery (Giao hàng): Yêu cầu nhập địa chỉ giao hàng và số điện thoại.
+// Hiển thị hình thức thanh toán (tiền mặt, thẻ, hoặc online).
 
 interface User {
     _id: string;

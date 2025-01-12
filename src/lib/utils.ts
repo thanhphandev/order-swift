@@ -1,13 +1,17 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {formatDistanceToNowStrict} from 'date-fns'
+import { vi } from 'date-fns/locale';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 export function relativeDate(from: Date){
-  return formatDistanceToNowStrict(from, { addSuffix: true })
+  if (isNaN(from.getTime())) {
+    return 'Invalid date';
+  }
+  return formatDistanceToNowStrict(from, { addSuffix: true, locale: vi })
 }
 
 export function formatMoney(amount: number){

@@ -131,3 +131,24 @@ export async function getSubcategories(categoryId: string) {
   }
 }
 
+export async function getAllSubcategories() : Promise<CategoryType[]>{
+  try {
+    await connectDB();
+    const data = await Subcategory.find().exec();
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+    const subcategories = data.map(subcategory => (
+      {
+        _id: subcategory._id.toString(),
+        path: subcategory.path,
+        name: subcategory.name
+      }
+    ));
+    return subcategories
+  } catch (error) {
+    console.error('Error fetching subcategories:', error);
+    throw new Error('Failed to fetch subcategories. Please try again.');
+  }
+}

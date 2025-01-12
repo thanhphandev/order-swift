@@ -6,7 +6,7 @@ export interface MenuItemType {
     subcategory?: string, // Link to subcategory._id
     price: number,
     pricePerSize?: { size: string; price: number }[],
-    topping?: { name: string; price: number }[];
+    toppings?: { name: string; price: number }[];
     image: string,
     isAvailable: boolean,
     isBestSeller: boolean,
