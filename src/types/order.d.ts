@@ -18,10 +18,10 @@ export interface OrderType {
     status: status,
     typeOrder: typeOrder,
     customerInfo?: {
-        customerName?: string,
-        phoneNumber?: string,
-        deliveryAddress?: string,
-    },
+        customerName?: string | null,
+        phoneNumber?: string | null,
+        deliveryAddress?: string | null,
+    } | null,
     totalAmount: number,
     notes: string,
     createdAt: Date,
@@ -44,10 +44,17 @@ export interface CreateOrderData {
     status: status;
     typeOrder: typeOrder;
     customerInfo?: {
-        name: string;
-        phone: string;
-        address: string;
-    } | null;
+        name?: string | null,
+        phone?: string | null,
+        address?: string | null,
+    } | null,
     totalAmount: number;
     notes?: string;
+}
+
+export interface Filters {
+  status: status | null;
+  typeOrder: typeOrder | null;
+  fromDate: string;
+  toDate: string;
 }

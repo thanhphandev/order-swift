@@ -113,8 +113,8 @@ const CartView = ({ tables }: { tables: string[] }) => {
             totalAmount: subTotal,
             notes: notes,
             customerInfo: diningOption !== 'dine-in' ? {
-                name: customerName,
-                phone: phoneNumber,
+                name: customerName || null,
+                phone: phoneNumber || null,
                 address: diningOption === 'delivery' ? deliveryAddress || '' : ''
             } : null
         };

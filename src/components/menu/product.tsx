@@ -23,6 +23,7 @@ export const Product = ({ product }: MenuItemProps) => {
   );
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showDetailsButton, setShowDetailsButton] = useState(false);
 
   const currentPrice = product.pricePerSize?.length
     ? product.pricePerSize.find(p => p.size === selectedSize)?.price
@@ -34,7 +35,8 @@ export const Product = ({ product }: MenuItemProps) => {
     } else {
       addFavoriteProduct(product);
     }
-  }
+  };
+
   useEffect(() => {
     setIsProductFavorite(favoriteProducts.some((p) => p._id === product._id));
   }, [favoriteProducts, product._id]);
@@ -57,10 +59,10 @@ export const Product = ({ product }: MenuItemProps) => {
   return (
     <div
       className="relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100"
+      onMouseEnter={() => setShowDetailsButton(true)}
+      onMouseLeave={() => setShowDetailsButton(false)}
     >
-
       <div className="relative w-full h-48 overflow-hidden">
-        {/* Skeleton loader or placeholder image */}
         <div className={`absolute inset-0 bg-gray-300 animate-pulse ${isLoading ? 'opacity-100' : 'opacity-0'}`} />
         <Image
           src={product.image}
@@ -68,69 +70,59 @@ export const Product = ({ product }: MenuItemProps) => {
           fill
           className="object-cover transition-transform duration-300 hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          onLoad={() => setIsLoading(false)} // Image load complete
+          onLoad={() => setIsLoading(false)}
         />
-        {/* Favorite Button */}
         <button
           onClick={toggleFavorite}
           className="absolute top-3 right-3 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition-colors"
         >
           <Heart
-            className={`w-5 h-5 ${isProductFavorite ? "text-red-500 fill-red-500" : "text-gray-500 "}`}
+            className={`w-5 h-5 ${isProductFavorite ? "text-red-500 fill-red-500" : "text-gray-500"}`}
           />
         </button>
-        <div className='flex flex-col gap-1.5 absolute top-3 left-3'>
-          {
-            product.isBestSeller && (
-              <Badge variant="best-seller" />
-            )
-          }
-          {
-            product.isAvailable === false && (
-              <Badge variant="out-of-stock" />
-            )
-          }
+        <div className="flex flex-col gap-1.5 absolute top-3 left-3">
+          {product.isBestSeller && <Badge variant="best-seller" />}
+          {product.isAvailable === false && <Badge variant="out-of-stock" />}
         </div>
-
+        {showDetailsButton && (
+          <button
+            onClick={() => console.log(`Xem chi tiết sản phẩm: ${product.name}`)}
+            className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-4 py-2 rounded-full shadow-md hover:bg-orange-600 transition-all"
+          >
+            Xem chi tiết sản phẩm
+          </button>
+        )}
       </div>
-
-      {/* Product Details */}
       <div className="p-4 space-y-2">
         <div className="flex justify-between items-center cursor-pointer">
-          <h3 className="text-lg font-bold text-gray-800 truncate max-w-[70%]">
-            {product.name}
-          </h3>
-          <span className="text-green-600 font-semibold text-base">
-            {formatMoney(currentPrice || 0)}
-          </span>
+          <h3 className="text-lg font-bold text-gray-800 truncate max-w-[70%]">{product.name}</h3>
+          <span className="text-green-600 font-semibold text-base">{formatMoney(currentPrice || 0)}</span>
         </div>
-
         <p className="text-sm text-gray-500 line-clamp-2">{product.description}</p>
-
         {product.pricePerSize && product.pricePerSize.length > 0 && (
           <div className="flex gap-2">
             {product.pricePerSize.map(({ size, price }) => (
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-all border ${selectedSize === size
-                  ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:border-gray-400'
-                  }`}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-all border ${
+                  selectedSize === size
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-md'
+                    : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:border-gray-400'
+                }`}
               >
                 {size}
               </button>
-
             ))}
           </div>
         )}
-
         {product.isAvailable && (
           <div className="mt-4 flex justify-between items-center">
             <button
               onClick={handleAddToCart}
-              className={`flex items-center justify-center ${isLoading ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
-                } text-white px-4 py-2 rounded-full transition-transform duration-200 space-x-2 w-full`}
+              className={`flex items-center justify-center ${
+                isLoading ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
+              } text-white px-4 py-2 rounded-full transition-transform duration-200 space-x-2 w-full`}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -142,7 +134,6 @@ export const Product = ({ product }: MenuItemProps) => {
                 </>
               )}
             </button>
-
           </div>
         )}
       </div>
